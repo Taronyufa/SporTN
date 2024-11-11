@@ -16,7 +16,7 @@ app.get('/', function(req, res) {
 
 // reservations route, using the reservations.js file
 var reservations = require('./routes/reservations');
-app.use('/reservations', reservations);
+app.use('/api/reservations', reservations);
 
 
 // Start server
