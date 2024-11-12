@@ -30,6 +30,10 @@ app.use('/api/sports', sports);
 var reports = require('./routes/reports');
 app.use('/api/reports', reports);
 
+// reviews route, using the reviews.js file
+var reviews = require('./routes/reviews');
+app.use('/api/reviews', reviews);
+
 
 // Start server
 const PORT = process.env.PORT || 3000;
