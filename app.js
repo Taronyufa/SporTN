@@ -22,9 +22,13 @@ app.use('/api/reservations', reservations);
 var events = require('./routes/events');
 app.use('/api/events', events);
 
-// public sports route, using the sports.js file
+// sports route, using the sports.js file
 var sports = require('./routes/sports');
 app.use('/api/sports', sports);
+
+// reports route, using the reports.js file
+var reports = require('./routes/reports');
+app.use('/api/reports', reports);
 
 
 // Start server
