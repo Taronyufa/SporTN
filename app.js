@@ -22,6 +22,10 @@ app.use('/api/reservations', reservations);
 var events = require('./routes/events');
 app.use('/api/events', events);
 
+// public sports route, using the sports.js file
+var sports = require('./routes/sports');
+app.use('/api/sports', sports);
+
 
 // Start server
 const PORT = process.env.PORT || 3000;
