@@ -34,6 +34,10 @@ app.use('/api/reports', reports);
 var reviews = require('./routes/reviews');
 app.use('/api/reviews', reviews);
 
+// fields route, using the fields.js file
+var fields = require('./routes/fields');
+app.use('/api/fields', fields);
+
 
 // Start server
 const PORT = process.env.PORT || 3000;
