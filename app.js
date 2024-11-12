@@ -14,6 +14,10 @@ app.get('/', function(req, res) {
     res.send('This is the homepage');
 });
 
+// users route, using the users.js file
+var users = require('./routes/users');
+app.use('/api/users', users);
+
 // reservations route, using the reservations.js file
 var reservations = require('./routes/reservations');
 app.use('/api/reservations', reservations);
