@@ -36,7 +36,8 @@ app.get('/', function(req, res) {
             id: 1,
             user_id: 1,
             date: '2020-01-01',
-            time: '12:00',
+            start_time: '12:00',
+            end_time: '14:00',
             participants: 4,
             is_public: true,
             sport: 'Tennis'
@@ -45,7 +46,8 @@ app.get('/', function(req, res) {
             id: 2,
             user_id: 2,
             date: '2020-01-02',
-            time: '13:00',
+            start_time: '13:00',
+            end_time: '14:00',
             participants: 1,
             is_public: false,
             sport: 'Basketball'
@@ -54,7 +56,8 @@ app.get('/', function(req, res) {
             id: 3,
             user_id: 2,
             date: '2020-01-03',
-            time: '14:00',
+            start_time: '14:00',
+            end_time: '14:00',
             participants: 6,
             is_public: true,
             sport: 'Soccer'
@@ -63,7 +66,8 @@ app.get('/', function(req, res) {
             id: 4,
             user_id: 3,
             date: '2020-01-04',
-            time: '15:00',
+            start_time: '15:00',
+            end_time: '14:00',
             participants: 1,
             is_public: false,
             sport: 'Volleyball'
@@ -78,21 +82,24 @@ app.post('/', function(req, res) {
     var data = req.body;
 
     // validate the data
-    if (!data.user_id) {
-        // if user_id is not provided, return a 400 error
-        res.status(400).send('user_id is required');
-    } else if (!data.date) {
+    if (!data.date) {
         // if date is not provided, return a 400 error
         res.status(400).send('date is required');
     } else if (new Date(data.date) === 'Invalid Date') {
         // if the date is not a valid date, return a 400 error
         res.status(400).send('Invalid date format');
-    } else if (!data.time) {
+    } else if (!data.start_time) {
         // if the time is not provided, return a 400 error
-        res.status(400).send('time is required');
-    } else if (new Date(data.time) === 'Invalid Date') {
+        res.status(400).send('start time is required');
+    } else if (new Date(data.start_time) === 'Invalid Date') {
         // if the time is not a valid time, return a 400 error
-        res.status(400).send('Invalid time format');
+        res.status(400).send('Invalid start time format');
+    } else if (!data.end_time) {
+        // if the time is not provided, return a 400 error
+        res.status(400).send('end time is required');
+    } else if (new Date(data.end_time) === 'Invalid Date') {
+        // if the time is not a valid time, return a 400 error
+        res.status(400).send('Invalid end time format');
     } else if (!data.participants) {
         // if the number of participants is not provided, return a 400 error
         res.status(400).send('number of participants is required');
@@ -110,9 +117,10 @@ app.post('/', function(req, res) {
 
         // make a reservation object
         var reservation = {
-            user_id: data.user_id,
+            user_id: 4,
             date: data.date,
-            time: data.time,
+            start_time: data.start_time,
+            end_time: data.end_time,
             participants: data.participants,
             is_public: data.is_public,
             sport: data.sport
@@ -155,7 +163,8 @@ app.get('/:id', function(req, res) {
             id: id,
             user_id: 1,
             date: '2020-01-01',
-            time: '12:00',
+            start_time: '12:00',
+            end_time: '14:00',
             participants: 4,
             is_public: true,
             sport: 'Tennis'
