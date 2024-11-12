@@ -18,6 +18,10 @@ app.get('/', function(req, res) {
 var reservations = require('./routes/reservations');
 app.use('/api/reservations', reservations);
 
+// public events route, using the events.js file
+var events = require('./routes/events');
+app.use('/api/events', events);
+
 
 // Start server
 const PORT = process.env.PORT || 3000;
