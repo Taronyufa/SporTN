@@ -35,6 +35,8 @@ app.get('/', function(req, res) {
         { 
             id: 1,
             user_id: 1,
+            field_id: 1,
+            field_name: 'Field 1',
             date: '2020-01-01',
             start_time: '12:00',
             end_time: '14:00',
@@ -45,6 +47,8 @@ app.get('/', function(req, res) {
         { 
             id: 2,
             user_id: 2,
+            field_id: 3,
+            field_name: 'Field 3',
             date: '2020-01-02',
             start_time: '13:00',
             end_time: '14:00',
@@ -55,6 +59,8 @@ app.get('/', function(req, res) {
         { 
             id: 3,
             user_id: 2,
+            field_id: 5,
+            field_name: 'Field 5',
             date: '2020-01-03',
             start_time: '14:00',
             end_time: '14:00',
@@ -65,6 +71,8 @@ app.get('/', function(req, res) {
         { 
             id: 4,
             user_id: 3,
+            field_id: 1,
+            field_name: 'Field 1',
             date: '2020-01-04',
             start_time: '15:00',
             end_time: '14:00',
@@ -82,7 +90,13 @@ app.post('/', function(req, res) {
     var data = req.body;
 
     // validate the data
-    if (!data.date) {
+    if (!data.field_id) {
+        // if field_id is not provided, return a 400 error
+        res.status(400).send('field_id is required');
+    } else if (!Number.isInteger(data.field_id) || data.field_id < 1) {
+        // if field_id is not an integer or is less than 1, return a 400 error
+        res.status(400).send('field_id not valid');
+    } else if (!data.date) {
         // if date is not provided, return a 400 error
         res.status(400).send('date is required');
     } else if (new Date(data.date) === 'Invalid Date') {
@@ -118,6 +132,7 @@ app.post('/', function(req, res) {
         // make a reservation object
         var reservation = {
             user_id: 4,
+            field_id: data.field_id,
             date: data.date,
             start_time: data.start_time,
             end_time: data.end_time,
@@ -135,13 +150,16 @@ app.post('/', function(req, res) {
         if (!saved) {
             res.status(400).send('Error creating reservation');
         } else {
+            // get the field name from the database
+
+            // this is just a placeholder
+            reservation.field_name = 'Field ' + data.field_id;
+
             // return a 201 status code and send the object
             res.status(201).send(reservation);
         }
 
     }
-
-
 });
 
 // get a specific reservation
@@ -162,6 +180,8 @@ app.get('/:id', function(req, res) {
         var reservation = { 
             id: id,
             user_id: 1,
+            field_id: id,
+            field_name: 'Field ' + id,
             date: '2020-01-01',
             start_time: '12:00',
             end_time: '14:00',
