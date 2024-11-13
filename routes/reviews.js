@@ -14,38 +14,74 @@ app.get('/', function(req, res) {
         field_id = parseInt(field_id);
         if (isNaN(field_id)) {
             res.status(400).send('Invalid value for field_id, must be an integer');
+        } else{
+            // get the reviews from the database for the field_id
+
+            // this is just a placeholder for the database
+            var reviews = [
+                {
+                    id: 1,
+                    name: 'Review 1',
+                    field_id: field_id,
+                    date: '2020-01-01',
+                    time: '12:00',
+                    rating: 4,
+                    description: 'This is a review in Central Park',
+                },
+                {
+                    id: 2,
+                    name: 'Review 2',
+                    field_id: field_id,
+                    date: '2020-01-02',
+                    time: '13:00',
+                    rating: 5,
+                    description: 'This is a review in Madison Square Garden',
+                },
+                {
+                    id: 3,
+                    name: 'Review 3',
+                    field_id: field_id,
+                    date: '2020-01-03',
+                    time: '14:00',
+                    rating: 3,
+                    description: 'This is a review in Central Park',
+                },
+            ];
         }
+    } else{
+        // take all the reviews from the database
+        
+        // this is just a placeholder for the database
+        var reviews = [
+            {
+                id: 1,
+                name: 'Review 1',
+                field_id: 1,
+                date: '2020-01-01',
+                time: '12:00',
+                rating: 4,
+                description: 'This is a review in Central Park',
+            },
+            {
+                id: 2,
+                name: 'Review 2',
+                field_id: 2,
+                date: '2020-01-02',
+                time: '13:00',
+                rating: 5,
+                description: 'This is a review in Madison Square Garden',
+            },
+            {
+                id: 3,
+                name: 'Review 3',
+                field_id: 1,
+                date: '2020-01-03',
+                time: '14:00',
+                rating: 3,
+                description: 'This is a review in Central Park',
+            },
+        ];
     }
-
-    // take the reviews from the database
-
-    // this is just a placeholder for the database
-    var reviews = [
-        {
-            id: 1,
-            name: 'Review 1',
-            field_id: field_id,
-            date: '2020-01-01',
-            time: '12:00',
-            description: 'This is a review in Central Park',
-        },
-        {
-            id: 2,
-            name: 'Review 2',
-            field_id: field_id,
-            date: '2020-01-02',
-            time: '13:00',
-            description: 'This is a review in Madison Square Garden',
-        },
-        {
-            id: 3,
-            name: 'Review 3',
-            field_id: field_id,
-            date: '2020-01-03',
-            time: '14:00',
-            description: 'This is a review in Central Park',
-        },
-    ];
 
     res.send(reviews);
 });
@@ -80,6 +116,7 @@ app.post('/', function(req, res) {
             field_id: data.field_id,
             date: date,
             time: time,
+            rating: data.rating,
             description: data.description,
         };
 
@@ -94,21 +131,23 @@ app.get('/:id', function(req, res) {
     id = parseInt(id);
     if (isNaN(id)) {
         res.status(400).send('Invalid value for id, must be an integer');
+    } else{
+        
+        // get the review from the database
+        
+        // this is just a placeholder for the database
+        var review = {
+            id: id,
+            name: 'Review ' + id,
+            field_id: 1,
+            date: '2020-01-01',
+            time: '12:00',
+            rating: 4,
+            description: 'This is a review in Central Park',
+        };
+        
+        res.send(review);
     }
-
-    // get the review from the database
-
-    // this is just a placeholder for the database
-    var review = {
-        id: id,
-        name: 'Review ' + id,
-        field_id: 1,
-        date: '2020-01-01',
-        time: '12:00',
-        description: 'This is a review in Central Park',
-    };
-
-    res.send(review);
 });
 
 app.delete('/:id', function(req, res) {
