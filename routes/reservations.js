@@ -127,36 +127,48 @@ app.post('/', function(req, res) {
     } else if (!data.sport) {
         res.status(400).send('sport is required');
     } else {
-        // create the reservation
+        // TODO: before saving the reservation, check if the user_id already has a reservation at the same time
+        var already_reserved = false;
 
-        // make a reservation object
-        var reservation = {
-            user_id: 4,
-            field_id: data.field_id,
-            date: data.date,
-            start_time: data.start_time,
-            end_time: data.end_time,
-            participants: data.participants,
-            is_public: data.is_public,
-            sport: data.sport
-        };
+        // TODO: before saving the reservation, check if the field is available at the specified time
+        var field_available = true;
 
-        // save the reservation to the database
-        // if user_id or sport is not valid, the database will return an error, and we will return a 400 error
-
-        // this is just a placeholder, when the database is implemented, this will be replaced
-        var saved = true;
-
-        if (!saved) {
-            res.status(400).send('Error creating reservation');
+        if (already_reserved) {
+            res.status(400).send('You already have a reservation at the same time');
+        } else if (!field_available) {
+            res.status(400).send('The field is not available at the specified time');
         } else {
-            // get the field name from the database
-
-            // this is just a placeholder
-            reservation.field_name = 'Field ' + data.field_id;
-
-            // return a 201 status code and send the object
-            res.status(201).send(reservation);
+            // create the reservation
+            
+            // make a reservation object
+            var reservation = {
+                user_id: 4,
+                field_id: data.field_id,
+                date: data.date,
+                start_time: data.start_time,
+                end_time: data.end_time,
+                participants: data.participants,
+                is_public: data.is_public,
+                sport: data.sport
+            };
+            
+            // save the reservation to the database
+            // if user_id or sport is not valid, the database will return an error, and we will return a 400 error
+            
+            // this is just a placeholder, when the database is implemented, this will be replaced
+            var saved = true;
+            
+            if (!saved) {
+                res.status(500).send('Error creating reservation');
+            } else {
+                // get the field name from the database
+                
+                // this is just a placeholder
+                reservation.field_name = 'Field ' + data.field_id;
+                
+                // return a 201 status code and send the object
+                res.status(201).send(reservation);
+            }
         }
 
     }

@@ -98,29 +98,41 @@ app.post('/', function(req, res) {
     } else if (!Number.isInteger(data.field_id)) {
         return res.status(400).send('Invalid field_id, must be an integer'); 
     } else {
-        // save the review in the database
-        
-        // convert the date to the correct format
-        // date format: YYYY-MM-DD
-        // time format: HH:MM:SS
-        var date_obj = new Date();
-        date = date_obj.toISOString().split('T')[0];
-        time = date_obj.toISOString().split('T')[1].split('.')[0];
+        // TODO: before saving the review, check if the user has already made a review for the field
+        var already_reviewed = true;
 
-        // save the review in the database
+        // TODO: before saving the review, check if the user has at least one reservation in the field
+        var has_reservation = true;
 
-        // this is just a placeholder
-        review = {
-            id: 4,
-            name: data.title,
-            field_id: data.field_id,
-            date: date,
-            time: time,
-            rating: data.rating,
-            description: data.description,
-        };
-
-        res.status(201).send(review);
+        if (!already_reviewed) {
+            return res.status(400).send('You have already reviewed this field');
+        } else if (!has_reservation) {
+            return res.status(400).send('You must have at least one reservation in the field to review it');
+        } else{
+            // save the review in the database
+            
+            // convert the date to the correct format
+            // date format: YYYY-MM-DD
+            // time format: HH:MM:SS
+            var date_obj = new Date();
+            date = date_obj.toISOString().split('T')[0];
+            time = date_obj.toISOString().split('T')[1].split('.')[0];
+            
+            // save the review in the database
+            
+            // this is just a placeholder
+            review = {
+                id: 4,
+                name: data.title,
+                field_id: data.field_id,
+                date: date,
+                time: time,
+                rating: data.rating,
+                description: data.description,
+            };
+            
+            res.status(201).send(review);
+        }
     }
 });
 
