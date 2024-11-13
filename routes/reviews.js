@@ -83,7 +83,7 @@ app.post('/', function(req, res) {
             description: data.description,
         };
 
-        res.send(review);
+        res.status(201).send(review);
     }
 });
 

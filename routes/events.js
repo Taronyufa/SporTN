@@ -103,7 +103,7 @@ app.post('/', function(req, res) {
             description: data.description,
         };
 
-        res.send(event);
+        res.status(201).send(event);
     }
     
 });

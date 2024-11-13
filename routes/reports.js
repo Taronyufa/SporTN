@@ -75,7 +75,7 @@ app.post('/', function(req, res) {
             description: data.description,
         };
         
-        res.send(report);
+        res.status(201).send(report);
     }
 });
 

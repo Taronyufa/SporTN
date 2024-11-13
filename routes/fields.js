@@ -82,7 +82,7 @@ app.post('/', function(req, res) {
             sports_supported: data.sports_supported
         };
 
-        res.send(field);
+        res.status(201).send(field);
     }
     
 });
