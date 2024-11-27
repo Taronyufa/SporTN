@@ -1,6 +1,11 @@
 var express = require('express');
 var app = express();
 
+// connection to the db and get the user collection
+const { ObjectId } = require("mongodb");
+var client = require('./connection.js');
+var coll = client.getDb().collection('utente');
+
 app.use(express.json());
 
 app.use(express.urlencoded());
@@ -14,25 +19,22 @@ const validateEmail = (email) => {
 
 
 app.get('/me', function(req, res) {
-    // get user id
-    
-    // get the user from the database
+
 
     // this is just a placeholder for the database
     var user = {
-        id: 1,
+        _id: 1,
         username: 'John Doe',
         email: 'email@example.com',
-        profile_image_url: 'https://example.com/image.jpg',
-        favorite_sports: ['Soccer', 'Basketball'],
-        preferred_location: ['New York', 'Los Angeles']
+        foto_profilo: 'https://example.com/image.jpg',
+        sport: ['Soccer', 'Basketball'],
     }
 
     res.send(user);
 });
 
 app.put('/me', function(req, res) {
-    // get user id
+    // get user id 
 
     // get the data from the request
     var data = req.body;
@@ -57,22 +59,21 @@ app.put('/me', function(req, res) {
         // if preferred_location is not provided, return a 400 error
         res.status(400).send('preferred_location is required');
     } else{
+
         // modify the user data in the database
-        
-        var modified = true;
+        var UpdateUser = {
+            _id: userId, // got it at the top of the function
+            username: data.username,
+            email: data.email,
+            sport: data.favorite_sports,
+            foto_profilo: data.profile_image_url,
+        }
+           
+        var modified = updateUserFields(userId, UpdateUser);
         
         if (modified) {
             // this is just a placeholder for the database
-            var user = {
-                id: 1,
-                username: data.username,
-                email: data.email,
-                profile_image_url: data.profile_image_url,
-                favorite_sports: data.favorite_sports,
-                preferred_location: data.preferred_location
-            }
-            
-            res.send(user);
+            res.send(UpdateUser);
             
         } else {
             res.status(500).send('Error modifying user');
@@ -91,16 +92,7 @@ app.get('/:id', function(req, res) {
         res.status(400).send('Invalid id, must be an integer');
     } else {
         // get the user from the database
-
-        // this is just a placeholder for the database
-        var user = {
-            id: id,
-            username: 'John Doe',
-            email: 'email@example.com',
-            profile_image_url: 'https://example.com/image.jpg',
-            favorite_sports: ['Soccer', 'Basketball'],
-            preferred_location: ['New York', 'Los Angeles']
-        }
+        var user = getUserById(id);
 
         res.send(user);
 
@@ -119,9 +111,7 @@ app.delete('/:id', function(req, res) {
         res.status(400).send('Invalid id, must be an integer');
     } else {
         // delete the user from the database
-
-        // this is just a placeholder
-        var deleted = true;
+        var deleted = deleteUserById(id);
 
         if (deleted) {
             res.send('User deleted');
@@ -131,5 +121,65 @@ app.delete('/:id', function(req, res) {
     }
 });
 
+
+// all the function needed to implement the api
+async function createNewUser(userData) {
+
+    // userData needs to look like this:
+    // id is not necessary cuz the db will automatically chose one 
+    /*
+
+    var user = {
+        username: 'John Doe',
+        email: 'email@example.com',
+        foto_profilo: 'https://example.com/image.jpg',
+        sport: ['Soccer', 'Basketball'],
+    }
+
+    */
+
+    try {
+        const result = await coll.insertOne(userData); 
+        return result;
+    } catch (error) {
+        console.error("Error adding user:", error);
+        return false;
+    }
+}
+
+async function getUserById(userId) {
+    try {
+        const user = await coll.findOne({ _id: userId });
+        return user;
+    } catch (error) {
+        console.error("Error fetching user:", error);
+        return false;
+    }
+}
+
+async function updateUserFields(userId, updatedUserData) {
+    try {
+        const result = await coll.updateOne(
+            { _id: userId }, 
+            { $set: updatedUserData }     
+        );
+
+        return result;
+    } catch (error) {
+       console.error("Error updating user:", error);
+        return false;
+    }
+}
+
+async function deleteUserById(userId) {
+    try {
+        const result = await coll.deleteOne({ _id: userId });
+
+        return result.deletedCount;
+    } catch (error) {
+        console.error("Error deleting user:", error);
+        return false;
+    }
+}
 
 module.exports = app;

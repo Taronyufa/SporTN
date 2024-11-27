@@ -1,6 +1,11 @@
 var express = require('express');
 var app = express();
 
+// connection to the db and get the event collection
+const { ObjectId } = require('mongodb');
+var client = require('./connection.js');
+var coll = client.getDb().collection('campo');
+
 app.use(express.json());
 
 app.use(express.urlencoded());
@@ -8,39 +13,11 @@ app.use(express.urlencoded());
 
 app.get('/', function(req, res) {
     // take all the fields from the database
+    var fields = getAllFields();
 
-    // this is just a placeholder for the database
-    var fields = [
-        {
-            field_id: 1,
-            name: 'Field 1',
-            location: 'Location 1',
-            image_url: 'https://via.placeholder.com/150',
-            google_maps_link: 'https://www.google.com/maps',
-            is_available: true,
-            sports_supported: ['Soccer', 'Basketball']
-        },
-        {
-            field_id: 2,
-            name: 'Field 2',
-            location: 'Location 2',
-            image_url: 'https://via.placeholder.com/150',
-            google_maps_link: 'https://www.google.com/maps',
-            is_available: false,
-            sports_supported: ['Tennis', 'Volleyball']
-        },
-        {
-            field_id: 3,
-            name: 'Field 3',
-            location: 'Location 3',
-            image_url: 'https://via.placeholder.com/150',
-            google_maps_link: 'https://www.google.com/maps',
-            is_available: true,
-            sports_supported: ['Soccer', 'Basketball', 'Volleyball']
-        },
-    ]
-
-    res.send(fields);
+    if(fields){
+        res.send(fields);
+    }
 });
 
 app.post('/', function(req, res) {
@@ -70,19 +47,20 @@ app.post('/', function(req, res) {
         res.status(400).send('sports_supported is required');
     } else {
         // save the field to the database
-
-        // this is just a placeholder for the database
         var field = {
-            field_id: 4,
-            name: data.name,
-            location: data.location,
-            image_url: data.image_url,
-            google_maps_link: data.google_maps_link,
-            is_available: data.is_available,
-            sports_supported: data.sports_supported
-        };
+            nome: data.name,
+            indirizzo: data.location,
+            foto_url: data.image_url,
+            posizione: data.google_maps_link,
+            disponibile: data.is_available,
+            sport_supportati: data.sports_supported
+            };
 
-        res.status(201).send(field);
+        var result = addField(field);
+
+        if(result){
+            res.status(201).send(field);
+        }
     }
     
 });
@@ -97,19 +75,12 @@ app.get('/:id', function(req, res) {
     if (isNaN(id)) {
         res.status(400).send('Invalid id, must be an integer');
     } else {
-        // get the fiels from the database
-
-        // this is just a placeholder for the database
-        var field = {
-            field_id: id,
-            name: 'Field ' + id,
-            location: 'Location 1',
-            image_url: 'https://example.com/image',
-            google_maps_link: 'https://www.google.com/maps',
-            is_available: true,
-            sports_supported: ['Soccer', 'Basketball']
+        // get the fields from the database
+        var result = getFieldById(id);
+        
+        if(result){
+            res.send(field);
         }
-        res.send(field);
     }
 
 });
@@ -125,9 +96,7 @@ app.delete('/:id', function(req, res) {
         res.status(400).send('Invalid id, must be an integer');
     } else {
         // delete the field from the database
-
-        // this is just a placeholder for the database
-        var deleted = true;
+        var deleted = deleteFieldById(id);
 
         if (deleted) {
             res.send('Field deleted');
@@ -174,30 +143,82 @@ app.put('/:id', function(req, res) {
             res.status(400).send('sports_supported is required');
         } else {
             // update the field in the database
-
-            var modified = true;
-
-            if (modified) {
-                // this is just a placeholder for the database
-                var field = {
-                    field_id: id,
-                    name: data.name,
-                    location: data.location,
-                    image_url: data.image_url,
-                    google_maps_link: data.google_maps_link,
-                    is_available: data.is_available,
-                    sports_supported: data.sports_supported
-                };
-
+            var field = {
+                _id: id,
+                nome: data.name,
+                indirizzo: data.location,
+                foto_url: data.image_url,
+                posizione: data.google_maps_link,
+                disponibile: data.is_available,
+                sport_supportati: data.sports_supported
+            }
+                
+            var modified = updateFieldFields(id, field);
+            
+            if(modified){
                 res.send(field);
             } else {
                 res.status(404).send('Field not found');
             }
-
-            
         }
     }
 });
 
+
+// all the function needed to implement the api
+async function getAllFields() {
+    try {
+        const events = await coll.find({}).toArray(); 
+        return events;
+    } catch (error) {
+        console.error("Error fetching field:", error);
+        return false;
+    }
+}
+
+async function getFieldById(fieldid) {
+    try {
+        const event = await coll.findOne({ _id: fieldid });
+        return event;
+    } catch (error) {
+        console.error("Error fetching field:", error);
+        return false;
+    }
+}
+
+async function addField(fieldData) {
+    try {
+        const result = await coll.insertOne(fieldData);  
+        return result;
+    } catch (error) {
+        console.error("Error adding field:", error);
+        return false;
+    }
+}
+
+async function updateFieldFields(fieldId, updatedFieldData) {
+    try {
+        const result = await coll.updateOne(
+            { _id: fieldId }, 
+            { $set: updatedFieldData }    
+        );
+
+        return result;
+    } catch (error) {
+       console.error("Error updating field:", error);
+        return false;
+    }
+}
+
+async function deleteFieldById(fieldid) {
+    try {
+        const result = await coll.deleteOne({ _id: fieldid });
+
+        return result.deletedCount;
+    } catch (error) {
+        console.error("Error deleting field:", error);
+        return false;
+    }
+}
 
 module.exports = app;

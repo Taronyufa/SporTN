@@ -1,6 +1,11 @@
 var express = require('express');
 var app = express();
 
+// connection to the db and get the event collection
+const { ObjectId } = require('mongodb');
+var client = require('./connection.js');
+var coll = client.getDb().collection('prenotazione');
+
 app.use(express.json());
 
 app.use(express.urlencoded());
@@ -29,59 +34,8 @@ app.get('/', function(req, res) {
     }
 
     // take the reservations from the database, and filter them with the query parameters
-
-    // this is just a placeholder for the database
-    var reservations = [
-        { 
-            id: 1,
-            user_id: 1,
-            field_id: 1,
-            field_name: 'Field 1',
-            date: '2020-01-01',
-            start_time: '12:00',
-            end_time: '14:00',
-            participants: 4,
-            is_public: true,
-            sport: 'Tennis'
-        },
-        { 
-            id: 2,
-            user_id: 2,
-            field_id: 3,
-            field_name: 'Field 3',
-            date: '2020-01-02',
-            start_time: '13:00',
-            end_time: '14:00',
-            participants: 1,
-            is_public: false,
-            sport: 'Basketball'
-        },
-        { 
-            id: 3,
-            user_id: 2,
-            field_id: 5,
-            field_name: 'Field 5',
-            date: '2020-01-03',
-            start_time: '14:00',
-            end_time: '14:00',
-            participants: 6,
-            is_public: true,
-            sport: 'Soccer'
-        },
-        { 
-            id: 4,
-            user_id: 3,
-            field_id: 1,
-            field_name: 'Field 1',
-            date: '2020-01-04',
-            start_time: '15:00',
-            end_time: '14:00',
-            participants: 1,
-            is_public: false,
-            sport: 'Volleyball'
-        }
-    ];
-
+    var reservations = getPublicReservationsByUser(user_id);
+ 
     res.send(reservations);
 });
 
@@ -90,10 +44,13 @@ app.post('/', function(req, res) {
     var data = req.body;
 
     // validate the data
-    if (!data.field_id) {
+    if (!data.field_id || !data.event_id) {
         // if field_id is not provided, return a 400 error
         res.status(400).send('field_id is required');
     } else if (!Number.isInteger(data.field_id) || data.field_id < 1) {
+        // if field_id is not an integer or is less than 1, return a 400 error
+        res.status(400).send('field_id not valid');
+    } else if (!Number.isInteger(data.event_id) || data.field_id < 1) {
         // if field_id is not an integer or is less than 1, return a 400 error
         res.status(400).send('field_id not valid');
     } else if (!data.date) {
@@ -127,36 +84,34 @@ app.post('/', function(req, res) {
     } else if (!data.sport) {
         res.status(400).send('sport is required');
     } else {
-        // TODO: before saving the reservation, check if the user_id already has a reservation at the same time
-        var already_reserved = false;
 
-        // TODO: before saving the reservation, check if the field is available at the specified time
-        var field_available = true;
+        // before saving the reservation, check if the user_id already has a reservation at the same time
+        var already_reserved = hasConflictingReservation(data.user_id, data.date, data.start_time, data.end_time);
+
+        // before saving the reservation, check if the field is available at the specified time
+        var field_available = isFieldAvailable(data.field_id, data.date, data.start_time, data.end_time);
 
         if (already_reserved) {
             res.status(400).send('You already have a reservation at the same time');
         } else if (!field_available) {
             res.status(400).send('The field is not available at the specified time');
         } else {
-            // create the reservation
             
-            // make a reservation object
             var reservation = {
-                user_id: 4,
-                field_id: data.field_id,
-                date: data.date,
-                start_time: data.start_time,
-                end_time: data.end_time,
-                participants: data.participants,
-                is_public: data.is_public,
-                sport: data.sport
+                utente: data.user_id,
+                campo: data.field_id,
+                data: data.date,
+                ora_inizio: data.start_time,
+                ora_fine: data.end_time,
+                n_partecipanti: data.participants,
+                sport: data.sport,
+                pubblico: data.is_public,
+                evento: data.event_id
             };
             
             // save the reservation to the database
             // if user_id or sport is not valid, the database will return an error, and we will return a 400 error
-            
-            // this is just a placeholder, when the database is implemented, this will be replaced
-            var saved = true;
+            var saved = addReservation(reservation);
             
             if (!saved) {
                 res.status(500).send('Error creating reservation');
@@ -187,20 +142,7 @@ app.get('/:id', function(req, res) {
         res.status(400).send('Invalid id, must be an integer');
     } else {
         // get the reservation from the database
-
-        // this is just a placeholder for the database
-        var reservation = { 
-            id: id,
-            user_id: 1,
-            field_id: id,
-            field_name: 'Field ' + id,
-            date: '2020-01-01',
-            start_time: '12:00',
-            end_time: '14:00',
-            participants: 4,
-            is_public: true,
-            sport: 'Tennis'
-        };
+        var reservation = getReservationById(id);
 
         if (reservation) {
             res.send(reservation);
@@ -222,9 +164,7 @@ app.delete('/:id', function(req, res) {
         res.status(400).send('Invalid id, must be an integer');
     } else {
         // delete the reservation from the database
-
-        // this is just a placeholder for the database
-        var deleted = true;
+        var deleted = deleteReservationById(id);
 
         if (deleted) {
             res.send('Reservation deleted');
@@ -234,5 +174,101 @@ app.delete('/:id', function(req, res) {
     }
 });
 
+
+// all the function needed to implement the api
+async function getReservationById(reservationId) {
+    try {
+        const reservation = await coll.findOne({ _id: reservationId });
+        return reservation;
+    } catch (error) {
+        console.error("Error fetching reservations:", error);
+        return false;
+    }
+}
+
+async function getPublicReservationsByUser(userId) {
+    try {
+        const reservations = await coll.find({
+            user_id: userId,       // Match the specific user ID
+            is_public: true        // Only public reservations
+        }).toArray();
+
+        return reservations;
+    } catch (error) {
+        console.error("Error fetching reservations:", error);
+        return false;
+    }
+}
+
+async function addReservation(reservationData) {
+    try {
+        const result = await coll.insertOne(reservationData);  
+        return result;
+    } catch (error) {
+        console.error("Error adding reservations:", error);
+        return false;
+    }
+}
+
+async function deleteReservationById(reservationId) {
+    try {
+        const result = await coll.deleteOne({ _id: reservationId });
+
+        return result.deletedCount;
+    } catch (error) {
+        console.error("Error deleting reservations:", error);
+        return false;
+    }
+}
+
+async function hasConflictingReservation(userId, date, startTime, endTime) {
+    try {
+        const conflict = await coll.findOne({
+            utente: userId,               // L'utente da verificare
+            data: date,                   // Data della prenotazione
+            $or: [                        
+                {
+                    ora_inizio: { $lt: endTime },  // Ora inizio
+                    ora_fine: { $gt: startTime }  // Ora fine
+                }
+            ]
+        });
+
+        if (conflict) {
+            return true; // Conflitto trovato
+        }
+
+        return false; // Nessun conflitto
+
+    } catch (error) {
+        console.error("Errore durante la verifica delle prenotazioni:", error);
+        throw error;
+    }
+}
+
+async function isFieldAvailable(fieldId, date, startTime, endTime) {
+    try {
+        const conflict = await coll.findOne({
+            campo: fieldId,               // Campo da verificare
+            data: date,                   // Data della prenotazione
+            $or: [                        // Conflitto su intervalli di tempo
+                {
+                    ora_inizio: { $lt: endTime },  // Ora inizio
+                    ora_fine: { $gt: startTime }  // Ora fine
+                }
+            ]
+        });
+
+        if (conflict) {
+            return false; // Campo occupato
+        }
+
+        return true; // Campo disponibile
+
+    } catch (error) {
+        console.error("Errore durante la verifica delle disponibilità:", error);
+        throw error;
+    }
+}
 
 module.exports = app;

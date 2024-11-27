@@ -1,6 +1,11 @@
 var express = require('express');
 var app = express();
 
+// connection to the db and get the event collection
+const { ObjectId } = require('mongodb');
+var client = require('./connection.js');
+var coll = client.getDb().collection('segnalazione');
+
 app.use(express.json());
 
 app.use(express.urlencoded());
@@ -8,39 +13,11 @@ app.use(express.urlencoded());
 
 app.get('/', function(req, res) {
     // take the reports from the database
+    var reports = getAllReports();
 
-    // this is just a placeholder for the database
-    var reports = [
-        {
-            id: 1,
-            name: 'Report 1',
-            field_id: 1,
-            date: '2020-01-01',
-            time: '12:00',
-            image_url: 'https://example.com/image.jpg',
-            description: 'This is a report in Central Park',
-        },
-        {
-            id: 2,
-            name: 'Report 2',
-            field_id: 2,
-            date: '2020-01-02',
-            time: '13:00',
-            image_url: 'https://example.com/image.jpg',
-            description: 'This is a report in Madison Square Garden',
-        },
-        {
-            id: 3,
-            name: 'Report 3',
-            field_id: 1,
-            date: '2020-01-03',
-            time: '14:00',
-            image_url: 'https://example.com/image.jpg',
-            description: 'This is a report in Central Park',
-        },
-    ];
-
-    res.send(reports);
+    if(reports){
+        res.send(reports);
+    }
 });
 
 app.post('/', function(req, res) {
@@ -48,34 +25,33 @@ app.post('/', function(req, res) {
     data = req.body;
 
     // validate the data
-    if (!data.name || !data.field_id || !data.image_url || !data.description) {
+    if (!data.name || !data.field_id || !data.image_url || !data.description || !data.user_id) {
         return res.status(400).send('Invalid data');
     } else if (!Number.isInteger(data.field_id)) {
         return res.status(400).send('Invalid field_id, must be an integer'); 
+    } else if (!Number.isInteger(data.user_id)) {
+        return res.status(400).send('Invalid field_id, must be an integer'); 
     } else {
-        // save the report in the database
-        
         // convert the date to the correct format
-        // date format: YYYY-MM-DD
-        // time format: HH:MM:SS
-        var date_obj = new Date();
-        date = date_obj.toISOString().split('T')[0];
-        time = date_obj.toISOString().split('T')[1].split('.')[0];
+        // date format: YYYY-MM-DDTHH:mm:ss.sssZ
+        var date_obj = new Date().toISOString();
         
-        // save the report in the database
-        
-        // this is just a placeholder
         var report = {
-            id: 4,
-            name: data.name,
-            field_id: data.field_id,
-            date: date,
-            time: time,
-            image_url: data.image_url,
-            description: data.description,
+            titolo: data.name,
+            testo: data.description,
+            utente: data.user_id,
+            data: date_obj,
+            campo: data.field_id,
+            foto_url: data.image_url,
+            status: false,
         };
-        
-        res.status(201).send(report);
+
+        // save the report in the database
+        var result = addReport(report);
+
+        if(result){
+            res.status(201).send(report);
+        }
     }
 });
 
@@ -90,19 +66,11 @@ app.get('/:id', function(req, res) {
         res.status(400).send('Invalid id, must be an integer');
     } else {
         // get the report from the database
+        var result = getReportById(id);
 
-        // this is just a placeholder
-        var report = {
-            id: id,
-            name: 'Report ' + id,
-            field_id: 1,
-            date: '2020-01-01',
-            time: '12:00',
-            image_url: 'https://example.com/image.jpg',
-            description: 'This is a report in Central Park',
-        };
-
-        res.send(report);
+        if(result){
+            res.send(report);
+        }
     }
 });
 
@@ -117,9 +85,7 @@ app.delete('/:id', function(req, res) {
         res.status(400).send('Invalid id, must be an integer');
     } else {
         // delete the report from the database
-
-        // this is just a placeholder
-        var deleted = true;
+        var deleted = deleteReportById(id);
 
         if (deleted) {
             res.send('Report deleted');
@@ -140,9 +106,7 @@ app.put('/:id/status', function(req, res) {
         res.status(400).send('Invalid id, must be an integer');
     } else {
         // update the status of the report in the database
-
-        // this is just a placeholder
-        var updated = true;
+        var updated = updateStatus(id);
 
         if (updated) {
             res.send('Report status updated');
@@ -152,5 +116,61 @@ app.put('/:id/status', function(req, res) {
     }
 });
 
+
+// all the function needed to implement the api
+async function getAllReports() {
+    try {
+        const reports = await coll.find({}).toArray(); 
+        return reports;
+    } catch (error) {
+        console.error("Error fetching reports:", error);
+        return false;
+    }
+}
+
+async function getReportById(reportId) {
+    try {
+        const report = await coll.findOne({ _id: reportId });
+        return report;
+    } catch (error) {
+        console.error("Error fetching report:", error);
+        return false;
+    }
+}
+
+async function updateStatus(reportId) {
+    try {
+        const result = await coll.updateOne(
+            { _id: reportId },  
+            { $set: { status: true } }  
+        );
+        
+        return result;
+    } catch (error) {
+        console.error("Error updating report:", error);
+        return null;
+    }
+}
+
+async function addReport(reportData) {
+    try {
+        const result = await coll.insertOne(reportData);  
+        return result;
+    } catch (error) {
+        console.error("Error adding report:", error);
+        return false;
+    }
+}
+
+async function deleteReportById(reportId) {
+    try {
+        const result = await coll.deleteOne({ _id: reportId });
+
+        return result.deletedCount;
+    } catch (error) {
+        console.error("Error deleting report:", error);
+        return false;
+    }
+}
 
 module.exports = app;

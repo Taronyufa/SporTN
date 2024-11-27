@@ -1,3 +1,5 @@
+
+
 require('dotenv').config();
 var express = require('express');
 var app = express();
@@ -11,8 +13,12 @@ app.use(express.static('public'));
 
 // Routes
 app.get('/', function(req, res) {
-    res.send('This is the homepage');
+    
+res.send('This is the homepage');
 });
+
+var connection = require('./routes/connection.js');
+var db = connection.getDb();
 
 // users route, using the users.js file
 var users = require('./routes/users');

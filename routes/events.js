@@ -1,6 +1,11 @@
 var express = require('express');
 var app = express();
 
+// connection to the db and get the event collection
+const { ObjectId } = require('mongodb');
+var client = require('./connection.js');
+var coll = client.getDb().collection('evento');
+
 app.use(express.json());
 
 app.use(express.urlencoded());
@@ -8,48 +13,11 @@ app.use(express.urlencoded());
 
 app.get('/', function(req, res) {
     // take the events from the database
+    var events = getAllEvents();
 
-    // this is just a placeholder for the database
-    var events = [
-        { 
-            id: 1,
-            name: 'Tennis Tournament',
-            location: 'Central Park',
-            start_date: '2020-01-01',
-            start_time: '12:00',
-            end_date: '2020-01-01',
-            end_time: '16:00',
-            image_url: 'https://example.com/image.jpg',
-            description: 'This is a tennis tournament in Central Park',
-            sports: ['Tennis']
-        },
-        {
-            id: 2,
-            name: 'Basketball Game',
-            location: 'Madison Square Garden',
-            start_date: '2021-01-01',
-            start_time: '12:00',
-            end_date: '2021-01-01',
-            end_time: '16:00',
-            image_url: 'https://example.com/image.jpg',
-            description: 'This is a basketball game in Madison Square Garden',
-            sports: ['Basketball']
-        },
-        {
-            id: 3,
-            name: 'Soccer Match',
-            location: 'Yankee Stadium',
-            start_date: '2022-01-01',
-            start_time: '12:00',
-            end_date: '2022-01-01',
-            end_time: '16:00',
-            image_url: 'https://example.com/image.jpg',
-            description: 'This is a soccer match in Yankee Stadium',
-            sports: ['Soccer']
-        }
-    ];
-
-    res.send(events);
+    if(events){ 
+        res.send(events);
+    }
 });
 
 app.post('/', function(req, res) {
@@ -66,19 +34,13 @@ app.post('/', function(req, res) {
     } else if (!data.start_date) {
         // if date is not provided, return a 400 error
         res.status(400).send('date is required');
-    } else if (new Date(data.start_date) === 'Invalid Date') {
+    } else if (new Date(data.start_date).toISOString() === 'Invalid Date') {
         // if the date is not a valid date, return a 400 error
         res.status(400).send('Invalid date format');
-    } else if (!data.start_time) {
-        // if time is not provided, return a 400 error
-        res.status(400).send('time is required');
-    } else if (new Date(data.start_time) === 'Invalid Date') {
-        // if the time is not a valid time, return a 400 error
-        res.status(400).send('Invalid time format');
     } else if (!data.end_date) {
         // if date is not provided, return a 400 error
         res.status(400).send('date is required');
-    } else if (new Date(data.end_date) === 'Invalid Date') {
+    } else if (new Date(data.end_date).toISOString() === 'Invalid Date') {
         // if the date is not a valid date, return a 400 error
         res.status(400).send('Invalid date format');
     } else if (!data.end_time) {
@@ -88,24 +50,23 @@ app.post('/', function(req, res) {
         // if the time is not a valid time, return a 400 error
         res.status(400).send('Invalid time format');
     } else {
-        // add the event to the database
-
-        // this is just a placeholder for the database
+        
         var event = {
-            id: 4,
-            name: data.name,
-            location: data.location,
-            start_date: data.start_date,
-            start_time: data.start_time,
-            end_date: data.end_date,
-            end_time: data.end_time,
-            image_url: data.image_url,
-            description: data.description,
+            nome: data.name,
+            posizione: data.location,
+            data_inizio: data.start_date,
+            data_fine: data.end_date,
+            foto_url: data.image_url,
+            descrizione: data.description,
         };
 
-        res.status(201).send(event);
+        // add the event to the database
+        var result = addEvent(event);
+
+        if(result){
+            res.status(201).send(event);
+        }
     }
-    
 });
 
 app.get('/:id', function(req, res) {
@@ -120,20 +81,11 @@ app.get('/:id', function(req, res) {
     } else {
 
         // this is just a placeholder for the database
+        var event = getEventById(id);
 
-        var event = {
-            id: id,
-            name: 'Tennis Tournament',
-            location: 'Central Park',
-            start_date: '2020-01-01',
-            start_time: '12:00',
-            end_date: '2020-01-01',
-            end_time: '16:00',
-            image_url: 'https://example.com/image.jpg',
-            description: 'This is a tennis tournament in Central Park',
-            sports: ['Tennis']
-        };
-        res.send(event);
+        if(event){
+            res.send(event);
+        }
     }
 
 });
@@ -148,10 +100,8 @@ app.delete('/:id', function(req, res) {
     if (isNaN(id)) {
         res.status(400).send('Invalid id, must be an integer');
     } else {
-        // delete the public event from the database
-
-        // this is just a placeholder for the database
-        var deleted = true;
+        // delete the public event from the database       
+        var deleted =  deleteEventById(id);
 
         if (deleted) {
             res.send('Event deleted');
@@ -162,5 +112,47 @@ app.delete('/:id', function(req, res) {
 
 });
 
+
+// all the function needed to implement the api
+async function getAllEvents() {
+    try {
+        const events = await coll.find({}).toArray(); 
+        return events;
+    } catch (error) {
+        console.error("Error fetching event:", error);
+        return false;
+    }
+}
+
+async function getEventById(eventId) {
+    try {
+        const event = await coll.findOne({ _id: eventId });
+        return event;
+    } catch (error) {
+        console.error("Error fetching event:", error);
+        return false;
+    }
+}
+
+async function addEvent(eventData) {
+    try {
+        const result = await coll.insertOne(eventData);  
+        return result;
+    } catch (error) {
+        console.error("Error adding event:", error);
+        return false;
+    }
+}
+
+async function deleteEventById(eventId) {
+    try {
+        const result = await coll.deleteOne({ _id: eventId });
+
+        return result.deletedCount;
+    } catch (error) {
+        console.error("Error deleting event:", error);
+        return false;
+    }
+}
 
 module.exports = app;
