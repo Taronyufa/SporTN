@@ -73,4 +73,46 @@ app.post('/register', async (req, res) => {
 });
 
 
+app.post('/login', async (req, res) => {
+    var data = req.body;
+
+    // validate the data
+    if (!data.email) {
+        res.status(400).send('email is required');
+    } else if (!data.password) {
+        res.status(400).send('password is required');
+    } else {
+        // check if the user exists
+        var user = await coll.findOne({ email: data.email });
+
+        if (!user) {
+            // if the user does not exist, return a 404 error
+            res.status(404).send('user not found');
+        } else {
+            // check if the password is correct
+            var valid = await bcrypt.compare(data.password, user.hashed_password);
+
+            if (valid) {
+                // if the password is correct, create a token
+                const token = jwt.sign(
+                    {
+                        user_id: user._id,
+                        username: user.username,
+                        role: user.role 
+                    },
+                    process.env.SUPER_SECRET,
+                    { expiresIn: '1h' }
+                );
+
+                res.status(200).send(token);
+            } else {
+                // if the password is not correct, return a 401 error
+                res.status(401).send('invalid password');
+            }
+        }
+    }
+
+});
+
+
 module.exports = app;
