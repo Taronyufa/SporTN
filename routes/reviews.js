@@ -3,7 +3,7 @@ var app = express();
 
 // connection to the db and get the review collection
 const { ObjectId } = require('mongodb');
-var client = require('./connection.js');
+var client = require('../connection.js');
 var coll = client.getDb().collection('recensione');
 
 app.use(express.json());

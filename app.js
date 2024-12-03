@@ -17,7 +17,7 @@ app.get('/', function(req, res) {
 res.send('This is the homepage');
 });
 
-var connection = require('./routes/connection.js');
+var connection = require('./connection.js');
 var db = connection.getDb();
 
 // users route, using the users.js file

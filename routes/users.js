@@ -3,7 +3,7 @@ var app = express();
 
 // connection to the db and get the user collection
 const { ObjectId } = require("mongodb");
-var client = require('./connection.js');
+var client = require('../connection.js');
 var coll = client.getDb().collection('utente');
 
 app.use(express.json());
