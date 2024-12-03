@@ -20,6 +20,10 @@ res.send('This is the homepage');
 var connection = require('./connection.js');
 var db = connection.getDb();
 
+// auth route, using the auth.js file
+var auth = require('./routes/auth');
+app.use('/api/auth', auth);
+
 // users route, using the users.js file
 var users = require('./routes/users');
 app.use('/api/users', users);
