@@ -5,22 +5,23 @@ var app = express();
 const { ObjectId } = require('mongodb');
 var client = require('../connection.js');
 var coll = client.getDb().collection('sport');
+const { checkAdmin } = require('../middleware/auth');
 
 app.use(express.json());
 
 app.use(express.urlencoded());
 
 
-app.get('/', function(req, res) {
+app.get('/', async (req, res) => {
     // take all the sports from the database
-    var sports = getAllSports();
+    var sports = await getAllSports();
 
     if(sports){
         res.send(sports);
     }
 });
 
-app.post('/', function(req, res) {
+app.post('/', checkAdmin, async (req, res) => {
     // get all the data from the request
     var data = req.body;
 
@@ -35,7 +36,7 @@ app.post('/', function(req, res) {
         };
 
         // add the sport to the database
-        var result = addSport(sport);
+        var result = await addSport(sport);
 
         if(result){
             res.status(201).send(sport);
@@ -43,43 +44,29 @@ app.post('/', function(req, res) {
     }
 });
 
-app.get('/:id', function(req, res) {
+app.get('/:id', async (req, res) => {
     var id = req.params.id;
 
-    // cast the id to an integer
-    id = parseInt(id);
-
-    // check if the id is a number
-    if (isNaN(id)) {
-        res.status(400).send('Invalid id, must be an integer');
+    // get the sport from the database
+    var sport = await getSportById(id);
+    
+    if(sport){
+        res.status(200).send(sport);
     } else {
-        // get the sport from the database
-        var result = getSportById(id);
-        
-        if(result){
-            res.send(sport);
-        }
+        res.status(404).send('Sport not found');
     }
 });
 
-app.delete('/:id', function(req, res) {
+app.delete('/:id', checkAdmin, async (req, res) => {
     var id = req.params.id;
 
-    // cast the id to an integer
-    id = parseInt(id);
+    // delete the sport from the database
+    var deleted = await deleteSportById(id);
 
-    // check if the id is a number
-    if (isNaN(id)) {
-        res.status(400).send('Invalid id, must be an integer');
+    if (deleted) {
+        res.send('Sport deleted');
     } else {
-        // delete the sport from the database
-        var deleted = deleteSportById(id);
-
-        if (deleted) {
-            res.send('Sport deleted');
-        } else {
-            res.status(404).send('Sport not found');
-        }
+        res.status(404).send('Sport not found');
     }
 
 });
@@ -97,7 +84,7 @@ async function getAllSports() {
 
 async function getSportById(sportId) {
     try {
-        const event = await coll.findOne({ _id: sportId });
+        const event = await coll.findOne({ _id: new ObjectId(sportId) });
         return event;
     } catch (error) {
         console.error("Error fetching sport:", error);
@@ -117,7 +104,7 @@ async function addSport(sportData) {
 
 async function deleteSportById(sportId) {
     try {
-        const result = await coll.deleteOne({ _id: sportId });
+        const result = await coll.deleteOne({ _id: new ObjectId(sportId) });
 
         return result.deletedCount;
     } catch (error) {
