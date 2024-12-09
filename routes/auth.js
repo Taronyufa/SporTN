@@ -93,18 +93,17 @@ app.post('/login', async (req, res) => {
             var valid = await bcrypt.compare(data.password, user.hashed_password);
 
             if (valid) {
-                // if the password is correct, create a token
-                const token = jwt.sign(
-                    {
-                        user_id: user._id,
-                        username: user.username,
-                        role: user.role 
-                    },
-                    process.env.SUPER_SECRET,
-                    { expiresIn: '1h' }
-                );
-
-                res.status(200).send(token);
+                // user authenticated -> create a token
+                var payload = { email: user.email, id: user._id, admin: user.admin, username: user.username };
+                var options = { expiresIn: 86400 } // expires in 24 hours
+                var token = jwt.sign(payload, process.env.SUPER_SECRET, options);
+                res.json({ success: true, 
+                    message: 'Enjoy your token!',
+                    token: token,
+                    email: user.email,
+                    id: user._id,
+                    self: "api/v1/" + user._id
+                });
             } else {
                 // if the password is not correct, return a 401 error
                 res.status(401).send('invalid password');

@@ -8,14 +8,18 @@ function authenticateToken(req, res, next) {
         return res.status(401).json({success:false, message:'No token provided.'})
     }
 
+    token = token.replace('Bearer ', '');
+
     jwt.verify(token, process.env.SUPER_SECRET, (err, user) => {
         if (err) {
-            return res.sendStatus(403);
-        } else{
+            return res.sendStatus(403); // Forbidden
+        } else {
             req.user = user;
             next();
         }
+
     });
+    return res.status(403); // Forbidden
 }
 
 
@@ -31,7 +35,7 @@ function checkAdmin(req, res, next) {
 
     jwt.verify(token, process.env.SUPER_SECRET, (err, user) => {
         if (err) {
-            return res.status(403); // Forbidden
+            return res.sendStatus(403); // Forbidden
         }
 
         // Check if the role is 'admin'
@@ -44,6 +48,7 @@ function checkAdmin(req, res, next) {
         }
 
     });
+    return res.status(403); // Forbidden
 }
 
 
