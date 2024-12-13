@@ -5,7 +5,7 @@ var app = express();
 const { ObjectId } = require('mongodb');
 var client = require('../connection.js');
 var coll = client.getDb().collection('segnalazione');
-const { authenticateToken, checkAdmin } = require('../middleware/auth');
+const { authenticateToken, checkAdmin } = require('../middleware/auth.js');
 
 app.use(express.json());
 
