@@ -1,16 +1,17 @@
 var express = require('express');
 var app = express();
 
-// connection to the db and get the event collection
+// connection to the db and get the reservation collection
 const { ObjectId } = require('mongodb');
-var client = require('./connection.js');
+var client = require('../connection.js');
 var coll = client.getDb().collection('prenotazione');
+const { authenticateToken } = require('../middleware/auth');
 
 app.use(express.json());
 
 app.use(express.urlencoded());
 
-app.get('/', function(req, res) {
+app.get('/', async (req, res) => {
     var public_only = req.query.public_only;
     var user_id = req.query.user_id;
 
@@ -21,38 +22,30 @@ app.get('/', function(req, res) {
         } else if (public_only === 'false' || public_only === 'False' || public_only === '0') {
             public_only = false;
         } else {
-            res.status(400).send('Invalid value for public_only, must be true or false');
+            return res.status(400).send('Invalid value for public_only, must be true or false');
         }
-    }
-
-    // cast user_id to an integer, if it exists, if it is not a number, return a 400 error
-    if (user_id) {
-        user_id = parseInt(user_id);
-        if (isNaN(user_id)) {
-            res.status(400).send('Invalid value for user_id, must be an integer');
-        }
+    } else {
+        public_only = false;
     }
 
     // take the reservations from the database, and filter them with the query parameters
-    var reservations = getPublicReservationsByUser(user_id);
+    var reservations = await getReservations(user_id, public_only);
  
-    res.send(reservations);
+    if (reservations){
+        return res.status(200).send(reservations);
+    } else {
+        return res.status(500).send('Error gettin reservations');
+    }
 });
 
-app.post('/', function(req, res) {
+app.post('/', authenticateToken, async (req, res) => {
     // get all the data from the request
     var data = req.body;
 
     // validate the data
-    if (!data.field_id || !data.event_id) {
+    if (!data.field_id) {
         // if field_id is not provided, return a 400 error
         res.status(400).send('field_id is required');
-    } else if (!Number.isInteger(data.field_id) || data.field_id < 1) {
-        // if field_id is not an integer or is less than 1, return a 400 error
-        res.status(400).send('field_id not valid');
-    } else if (!Number.isInteger(data.event_id) || data.field_id < 1) {
-        // if field_id is not an integer or is less than 1, return a 400 error
-        res.status(400).send('field_id not valid');
     } else if (!data.date) {
         // if date is not provided, return a 400 error
         res.status(400).send('date is required');
@@ -62,15 +55,9 @@ app.post('/', function(req, res) {
     } else if (!data.start_time) {
         // if the time is not provided, return a 400 error
         res.status(400).send('start time is required');
-    } else if (new Date(data.start_time) === 'Invalid Date') {
-        // if the time is not a valid time, return a 400 error
-        res.status(400).send('Invalid start time format');
     } else if (!data.end_time) {
         // if the time is not provided, return a 400 error
         res.status(400).send('end time is required');
-    } else if (new Date(data.end_time) === 'Invalid Date') {
-        // if the time is not a valid time, return a 400 error
-        res.status(400).send('Invalid end time format');
     } else if (!data.participants) {
         // if the number of participants is not provided, return a 400 error
         res.status(400).send('number of participants is required');
@@ -85,20 +72,35 @@ app.post('/', function(req, res) {
         res.status(400).send('sport is required');
     } else {
 
+        // check that the field_id exists
+        var field_exists = await fieldExists(data.field_id);
+        if (!field_exists) {
+            return res.status(400).send('Field does not exist');
+        }
+
+        // check that the sport exists
+        var sport_exists = await sportExists(data.sport);
+        if (!sport_exists) {
+            return res.status(400).send('Sport does not exist');
+        }
+
+        // get the user_id
+        var user_id = req.user.id;
+
         // before saving the reservation, check if the user_id already has a reservation at the same time
-        var already_reserved = hasConflictingReservation(data.user_id, data.date, data.start_time, data.end_time);
+        var already_reserved = await hasConflictingReservation(user_id, data.date, data.start_time, data.end_time);
 
         // before saving the reservation, check if the field is available at the specified time
-        var field_available = isFieldAvailable(data.field_id, data.date, data.start_time, data.end_time);
+        var field_available = await isFieldAvailable(data.field_id, data.date, data.start_time, data.end_time);
 
         if (already_reserved) {
-            res.status(400).send('You already have a reservation at the same time');
+            return res.status(400).send('You already have a reservation at the same time');
         } else if (!field_available) {
-            res.status(400).send('The field is not available at the specified time');
+            return res.status(400).send('The field is not available at the specified time');
         } else {
             
             var reservation = {
-                utente: data.user_id,
+                utente: user_id,
                 campo: data.field_id,
                 data: data.date,
                 ora_inizio: data.start_time,
@@ -106,21 +108,14 @@ app.post('/', function(req, res) {
                 n_partecipanti: data.participants,
                 sport: data.sport,
                 pubblico: data.is_public,
-                evento: data.event_id
             };
             
             // save the reservation to the database
-            // if user_id or sport is not valid, the database will return an error, and we will return a 400 error
-            var saved = addReservation(reservation);
+            var saved = await addReservation(reservation);
             
             if (!saved) {
                 res.status(500).send('Error creating reservation');
             } else {
-                // get the field name from the database
-                
-                // this is just a placeholder
-                reservation.field_name = 'Field ' + data.field_id;
-                
                 // return a 201 status code and send the object
                 res.status(201).send(reservation);
             }
@@ -130,47 +125,45 @@ app.post('/', function(req, res) {
 });
 
 // get a specific reservation
-app.get('/:id', function(req, res) {
+app.get('/:id', async (req, res) => {
     // get the id from the request
     var id = req.params.id;
 
-    // cast the id to an integer
-    id = parseInt(id);
+    // get the reservation from the database
+    var reservation = await getReservationById(id);
 
-    // check if the id is a number
-    if (isNaN(id)) {
-        res.status(400).send('Invalid id, must be an integer');
+    if (reservation) {
+        res.status(200).send(reservation);
     } else {
-        // get the reservation from the database
-        var reservation = getReservationById(id);
-
-        if (reservation) {
-            res.send(reservation);
-        } else {
-            res.status(404).send('Reservation not found');
-        }
+        res.status(404).send('Reservation not found');
     }
 });
 
-app.delete('/:id', function(req, res) {
+app.delete('/:id', authenticateToken, async (req, res) => {
     // get the id from the request
     var id = req.params.id;
 
-    // cast the id to an integer
-    id = parseInt(id);
+    // get the user_id and is_admin from the request
+    var user_id = req.user.id;
+    var is_admin = req.user.admin;
 
-    // check if the id is a number
-    if (isNaN(id)) {
-        res.status(400).send('Invalid id, must be an integer');
+    // get the reservation from the database
+    var reservation = await getReservationById(id);
+
+    if (!reservation) {
+        return res.status(404).send('Reservation not found');
+    }
+    if (reservation.utente !== user_id && !is_admin) {
+        return res.status(401).send('Unauthorized');
+    }
+
+    // delete the reservation from the database
+    var deleted = await deleteReservationById(id);
+
+    if (deleted && deleted > 0) {
+        res.status(200).send('Reservation deleted');
     } else {
-        // delete the reservation from the database
-        var deleted = deleteReservationById(id);
-
-        if (deleted) {
-            res.send('Reservation deleted');
-        } else {
-            res.status(404).send('Reservation not found');
-        }
+        res.status(500).send('Error deleting reservation');
     }
 });
 
@@ -178,7 +171,7 @@ app.delete('/:id', function(req, res) {
 // all the function needed to implement the api
 async function getReservationById(reservationId) {
     try {
-        const reservation = await coll.findOne({ _id: reservationId });
+        const reservation = await coll.findOne({ _id: new ObjectId(reservationId) });
         return reservation;
     } catch (error) {
         console.error("Error fetching reservations:", error);
@@ -186,12 +179,27 @@ async function getReservationById(reservationId) {
     }
 }
 
-async function getPublicReservationsByUser(userId) {
+async function getReservations(userId, publicOnly) {
     try {
-        const reservations = await coll.find({
-            user_id: userId,       // Match the specific user ID
-            is_public: true        // Only public reservations
-        }).toArray();
+        var reservations;
+
+        if (userId) {
+            // if user is defined, return only the reservations of that user
+
+            if (publicOnly) {
+                reservations = await coll.find({ utente: userId, pubblico: true }).toArray();
+            }
+            else {
+                reservations = await coll.find({ utente: userId }).toArray();
+            }
+        } else {
+            if (publicOnly) {
+                reservations = await coll.find({ pubblico: true }).toArray();
+            }
+            else{
+                reservations = await coll.find().toArray();
+            }
+        }
 
         return reservations;
     } catch (error) {
@@ -202,7 +210,7 @@ async function getPublicReservationsByUser(userId) {
 
 async function addReservation(reservationData) {
     try {
-        const result = await coll.insertOne(reservationData);  
+        const result = await coll.insertOne(reservationData);
         return result;
     } catch (error) {
         console.error("Error adding reservations:", error);
@@ -212,11 +220,32 @@ async function addReservation(reservationData) {
 
 async function deleteReservationById(reservationId) {
     try {
-        const result = await coll.deleteOne({ _id: reservationId });
-
+        const result = await coll.deleteOne({ _id: new ObjectId(reservationId) });
         return result.deletedCount;
     } catch (error) {
         console.error("Error deleting reservations:", error);
+        return false;
+    }
+}
+
+async function fieldExists(fieldId) {
+    try {
+        var fieldCollection = client.getDb().collection('campo');
+        const field = await fieldCollection.findOne({ _id: new ObjectId(fieldId) });
+        return field ? true : false;
+    } catch (error) {
+        console.error("Error fetching field:", error);
+        return false;
+    }
+}
+
+async function sportExists(sportId) {
+    try {
+        var sportCollection = client.getDb().collection('sport');
+        const sport = await sportCollection.findOne({ _id: new ObjectId(sportId) });
+        return sport ? true : false;
+    } catch (error) {
+        console.error("Error fetching sport:", error);
         return false;
     }
 }

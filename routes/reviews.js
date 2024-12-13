@@ -3,124 +3,132 @@ var app = express();
 
 // connection to the db and get the review collection
 const { ObjectId } = require('mongodb');
-var client = require('./connection.js');
+var client = require('../connection.js');
 var coll = client.getDb().collection('recensione');
+const { authenticateToken } = require('../middleware/auth');
 
 app.use(express.json());
 
 app.use(express.urlencoded());
 
 
-app.get('/', function(req, res) {
+app.get('/', async(req, res) => {
     var field_id = req.query.field_id;
 
     // cast filed_id to an integer, if it exists, if it is not a number, return a 400 error
     if (field_id) {
-        field_id = parseInt(field_id);
-        if (isNaN(field_id)) {
-            res.status(400).send('Invalid value for field_id, must be an integer');
-        } else{
-            // get the reviews from the database for the field_id
-            const reviews = getReviewByField(field_id);
-        }
+        // get the reviews from the database for the field_id
+        var reviews = await getReviewByField(field_id);
     } else{
         // take all the reviews from the database
-        var reviews = getAllRewies();      
+        var reviews = await getAllReviews();      
     }
 
     if(reviews){
-        res.send(reviews);
+        res.status(200).send(reviews);
+    } else {
+        res.status(400).send('Error fetching reviews, check the field_id');
     }
 });
 
-app.post('/', function(req, res) {
+app.post('/', authenticateToken, async(req, res) => {
     // get the data from the request
     data = req.body;
 
     // validate the data
-    if (!data.title || !data.field_id || !data.rating || !data.description || !data.user_id) {
+    if (!data.title || !data.field_id || !data.rating || !data.description) {
         return res.status(400).send('Invalid data');
     } else if (!Number.isInteger(data.rating) || data.rating < 1 || data.rating > 5) {
         return res.status(400).send('Invalid rating, must be an integer between 1 and 5');
-    } else if (!Number.isInteger(data.field_id)) {
-        return res.status(400).send('Invalid field_id, must be an integer'); 
-    } else if (!Number.isInteger(data.user_id)) {
-        return res.status(400).send('Invalid field_id, must be an integer'); 
     } else {
+        var user_id = req.user.id;
+
         // before saving the review, check if the user has already made a review for the field
-        var already_reviewed = hasUserReviewedField(data.user_id, data.field_id);
+        var already_reviewed = await hasUserReviewedField(user_id, data.field_id);
 
         // before saving the review, check if the user has at least one reservation in the field
+        // TODO: implement the hasReservation function
         var has_reservation = true;
 
-        if (!already_reviewed) {
+        if (already_reviewed) {
             return res.status(400).send('You have already reviewed this field');
         } else if (!has_reservation) {
             return res.status(400).send('You must have at least one reservation in the field to review it');
         } else{
+            // check that the field_id exists
+            var field = await checkField(data.field_id);
+
+            if (!field) {
+                return res.status(404).send('Field not found');
+            }
+
             // convert the date to the correct format
             // date format: YYYY-MM-DDTHH:mm:ss.sssZ
             var date_obj = new Date().toISOString();
+
             
             review = {
+                utente: user_id,
                 titolo: data.title,
                 testo: data.description,
                 data: date_obj,
-                utente: data.user_id,
                 campo: data.field_id,
                 rating: data.rating
             };
             
             // save the review in the database
-            var result = addReview(review);
+            var result = await addReview(review);
             
             if(result){
                 res.status(201).send(review);
+            } else {
+                res.status(400).send('Error adding review');
             }
         }
     }
 });
 
-app.get('/:id', function(req, res) {
+app.get('/:id', async(req, res) => {
     var id = req.params.id;
 
-    // cast id to an integer, if it is not a number, return a 400 error
-    id = parseInt(id);
-    if (isNaN(id)) {
-        res.status(400).send('Invalid value for id, must be an integer');
-    } else{
-        
-        // get the review from the database
-        var review = getReviewById(id);
-        
-        if(review){
-            res.send(review);
-        }
+    // get the review from the database
+    var review = await getReviewById(id);
+    
+    if(review){
+        res.status(200).send(review);
+    } else {
+        res.status(404).send('Review not found');
     }
 });
 
-app.delete('/:id', function(req, res) {
+app.delete('/:id', authenticateToken, async(req, res) => {
     var id = req.params.id;
 
-    // cast id to an integer, if it is not a number, return a 400 error
-    id = parseInt(id);
-    if (isNaN(id)) {
-        res.status(400).send('Invalid value for id, must be an integer');
+    // get the review from the database
+    var review = await getReviewById(id);
+
+    if (!review) {
+        return res.status(404).send('Review not found');
+    }
+
+    // check if the user is the owner of the review or an admin
+    if (req.user.id !== review.utente && !req.user.admin) {
+        return res.status(403).send('Forbidden: You are not the owner of the review');
     }
 
     // delete the review from the database
-    var deleted = deleteReviewById(id);
+    var deleted = await deleteReviewById(id);
 
     if (!deleted) {
         res.status(400).send('Error deleting review');
     } else {
-        res.send('Review deleted');
+        res.status(200).send('Review deleted');
     }
 });
 
 
 // all the function needed to implement the api
-async function getAllRewies() {
+async function getAllReviews() {
     try {
         const reviews = await coll.find({}).toArray(); 
         return reviews;
@@ -132,7 +140,7 @@ async function getAllRewies() {
 
 async function getReviewById(reviewId) {
     try {
-        const review = await coll.findOne({ _id: reviewId });
+        const review = await coll.findOne({ _id: new ObjectId(reviewId) });
         return review;
     } catch (error) {
         console.error("Error fetching review:", error);
@@ -159,9 +167,19 @@ async function addReview(reviewData) {
     }
 }
 
+async function checkField(fieldId) {
+    try {
+        const field = await client.getDb().collection('campo').findOne({ _id: new ObjectId(fieldId) });
+        return field;
+    } catch (error) {
+        console.error("Error fetching field:", error);
+        return false;
+    }
+}
+
 async function deleteReviewById(reviewId) {
     try {
-        const result = await coll.deleteOne({ _id: reviewId });
+        const result = await coll.deleteOne({ _id: new ObjectId(reviewId) });
 
         return result.deletedCount;
     } catch (error) {

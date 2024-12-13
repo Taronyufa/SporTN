@@ -3,24 +3,25 @@ var app = express();
 
 // connection to the db and get the event collection
 const { ObjectId } = require('mongodb');
-var client = require('./connection.js');
+var client = require('../connection.js');
 var coll = client.getDb().collection('evento');
+const { checkAdmin } = require('../middleware/auth');
 
 app.use(express.json());
 
 app.use(express.urlencoded());
 
 
-app.get('/', function(req, res) {
+app.get('/', async (req, res) => {
     // take the events from the database
-    var events = getAllEvents();
+    var events = await getAllEvents();
 
     if(events){ 
         res.send(events);
     }
 });
 
-app.post('/', function(req, res) {
+app.post('/', checkAdmin, async (req, res) => {
     // get all the data from the request
     var data = req.body;
 
@@ -31,85 +32,61 @@ app.post('/', function(req, res) {
     } else if (!data.location) {
         // if location is not provided, return a 400 error
         res.status(400).send('location is required');
-    } else if (!data.start_date) {
+    } else if (!data.start_datetime) {
         // if date is not provided, return a 400 error
-        res.status(400).send('date is required');
-    } else if (new Date(data.start_date).toISOString() === 'Invalid Date') {
-        // if the date is not a valid date, return a 400 error
-        res.status(400).send('Invalid date format');
-    } else if (!data.end_date) {
+        res.status(400).send('start datetime is required');
+    } else if (!data.end_datetime) {
         // if date is not provided, return a 400 error
-        res.status(400).send('date is required');
-    } else if (new Date(data.end_date).toISOString() === 'Invalid Date') {
-        // if the date is not a valid date, return a 400 error
-        res.status(400).send('Invalid date format');
-    } else if (!data.end_time) {
-        // if time is not provided, return a 400 error
-        res.status(400).send('time is required');
-    } else if (new Date(data.end_time) === 'Invalid Date') {
-        // if the time is not a valid time, return a 400 error
-        res.status(400).send('Invalid time format');
+        res.status(400).send('end datetime is required');
+    } else if (!data.description) {
+        // if description is not provided, return a 400 error
+        res.status(400).send('description is required');
     } else {
         
         var event = {
             nome: data.name,
             posizione: data.location,
-            data_inizio: data.start_date,
-            data_fine: data.end_date,
+            data_inizio: data.start_datetime,
+            data_fine: data.end_datetime,
             foto_url: data.image_url,
             descrizione: data.description,
         };
 
         // add the event to the database
-        var result = addEvent(event);
+        var result = await addEvent(event);
 
         if(result){
             res.status(201).send(event);
-        }
-    }
-});
-
-app.get('/:id', function(req, res) {
-    var id = req.params.id;
-
-    // cast the id to an integer
-    id = parseInt(id);
-
-    // check if the id is a number
-    if (isNaN(id)) {
-        res.status(400).send('Invalid id, must be an integer');
-    } else {
-
-        // this is just a placeholder for the database
-        var event = getEventById(id);
-
-        if(event){
-            res.send(event);
-        }
-    }
-
-});
-
-app.delete('/:id', function(req, res) {
-    var id = req.params.id;
-
-    // cast the id to an integer
-    id = parseInt(id);
-
-    // check if the id is a number
-    if (isNaN(id)) {
-        res.status(400).send('Invalid id, must be an integer');
-    } else {
-        // delete the public event from the database       
-        var deleted =  deleteEventById(id);
-
-        if (deleted) {
-            res.send('Event deleted');
         } else {
-            res.status(404).send('Event not found');
+            res.status(500).send('Error adding event');
         }
     }
+});
 
+app.get('/:id', async (req, res) => {
+    var id = req.params.id;
+
+    // this is just a placeholder for the database
+    var event = await getEventById(id);
+
+    if(event){
+        res.send(event);
+    } else {
+        res.status(404).send('Event not found');
+    }
+});
+
+app.delete('/:id', checkAdmin, async (req, res) => {
+    var id = req.params.id;
+
+    // delete the public event from the database       
+    var deleted = await deleteEventById(id);
+
+    if (deleted) {
+        res.send('Event deleted');
+    } else {
+        res.status(404).send('Event not found');
+    }
 });
 
 
@@ -126,7 +103,7 @@ async function getAllEvents() {
 
 async function getEventById(eventId) {
     try {
-        const event = await coll.findOne({ _id: eventId });
+        const event = await coll.findOne({ _id: new ObjectId(eventId) });
         return event;
     } catch (error) {
         console.error("Error fetching event:", error);
@@ -146,7 +123,7 @@ async function addEvent(eventData) {
 
 async function deleteEventById(eventId) {
     try {
-        const result = await coll.deleteOne({ _id: eventId });
+        const result = await coll.deleteOne({ _id: new ObjectId(eventId) });
 
         return result.deletedCount;
     } catch (error) {

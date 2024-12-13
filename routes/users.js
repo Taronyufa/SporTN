@@ -3,8 +3,9 @@ var app = express();
 
 // connection to the db and get the user collection
 const { ObjectId } = require("mongodb");
-var client = require('./connection.js');
+var client = require('../connection.js');
 var coll = client.getDb().collection('utente');
+const { authenticateToken } = require('../middleware/auth');
 
 app.use(express.json());
 
@@ -18,23 +19,26 @@ const validateEmail = (email) => {
 };
 
 
-app.get('/me', function(req, res) {
+app.get('/me', authenticateToken, async(req, res) => {
+    // get the user id from the request
+    var userId = req.user.id;
 
+    // get the user from the database
+    var user = await getUserById(userId);
 
-    // this is just a placeholder for the database
-    var user = {
-        _id: 1,
-        username: 'John Doe',
-        email: 'email@example.com',
-        foto_profilo: 'https://example.com/image.jpg',
-        sport: ['Soccer', 'Basketball'],
+    // not including the hashed password in the response
+    delete user.hashed_password;
+
+    if (!user) {
+        return res.status(404).send('User not found');
+    } else {
+        res.status(200).send(user);
     }
-
-    res.send(user);
 });
 
-app.put('/me', function(req, res) {
-    // get user id 
+app.put('/me', authenticateToken, async(req, res) => {
+    // get user id
+    var userId = req.user.id;
 
     // get the data from the request
     var data = req.body;
@@ -49,15 +53,6 @@ app.put('/me', function(req, res) {
     } else if (!validateEmail(data.email)) {
         // if email is not valid, return a 400 error
         res.status(400).send('email is not valid');
-    } else if (!data.profile_image_url) {
-        // if profile_image_url is not provided, return a 400 error
-        res.status(400).send('profile_image_url is required');
-    } else if (!data.favorite_sports) {
-        // if favorite_sports is not provided, return a 400 error
-        res.status(400).send('favorite_sports is required');
-    } else if (!data.preferred_location) {
-        // if preferred_location is not provided, return a 400 error
-        res.status(400).send('preferred_location is required');
     } else{
 
         // modify the user data in the database
@@ -69,10 +64,9 @@ app.put('/me', function(req, res) {
             foto_profilo: data.profile_image_url,
         }
            
-        var modified = updateUserFields(userId, UpdateUser);
+        var modified = await updateUserFields(userId, UpdateUser);
         
         if (modified) {
-            // this is just a placeholder for the database
             res.send(UpdateUser);
             
         } else {
@@ -81,75 +75,43 @@ app.put('/me', function(req, res) {
     }
 });
 
-app.get('/:id', function(req, res) {
+app.get('/:id', async(req, res) => {
     var id = req.params.id;
 
-    // cast the id to an integer
-    id = parseInt(id);
+    // get the user from the database
+    var user = await getUserById(id);
 
-    // check if the id is a number
-    if (isNaN(id)) {
-        res.status(400).send('Invalid id, must be an integer');
+    if (!user) {
+        return res.status(404).send('User not found');
     } else {
-        // get the user from the database
-        var user = getUserById(id);
-
-        res.send(user);
-
+        return res.status(200).send(user);
     }
 
 });
 
-app.delete('/:id', function(req, res) {
+app.delete('/:id', authenticateToken, async(req, res) => {
     var id = req.params.id;
 
-    // cast the id to an integer
-    id = parseInt(id);
+    // check if the user is the same as the user to be deleted or if the user is an admin
+    if (req.user.id != id && !req.user.admin) {
+        return res.status(403).send('Forbidden');
+    }
 
-    // check if the id is a number
-    if (isNaN(id)) {
-        res.status(400).send('Invalid id, must be an integer');
+    // delete the user from the database
+    var deleted = await deleteUserById(id);
+
+    if (deleted) {
+        res.status(200).send('User deleted');
     } else {
-        // delete the user from the database
-        var deleted = deleteUserById(id);
-
-        if (deleted) {
-            res.send('User deleted');
-        } else {
-            res.status(400).send('Error deleting user');
-        }
+        res.status(400).send('Error deleting user');
     }
 });
 
 
 // all the function needed to implement the api
-async function createNewUser(userData) {
-
-    // userData needs to look like this:
-    // id is not necessary cuz the db will automatically chose one 
-    /*
-
-    var user = {
-        username: 'John Doe',
-        email: 'email@example.com',
-        foto_profilo: 'https://example.com/image.jpg',
-        sport: ['Soccer', 'Basketball'],
-    }
-
-    */
-
-    try {
-        const result = await coll.insertOne(userData); 
-        return result;
-    } catch (error) {
-        console.error("Error adding user:", error);
-        return false;
-    }
-}
-
 async function getUserById(userId) {
     try {
-        const user = await coll.findOne({ _id: userId });
+        const user = await coll.findOne({ _id: new ObjectId(userId) });
         return user;
     } catch (error) {
         console.error("Error fetching user:", error);
@@ -166,14 +128,14 @@ async function updateUserFields(userId, updatedUserData) {
 
         return result;
     } catch (error) {
-       console.error("Error updating user:", error);
+        console.error("Error updating user:", error);
         return false;
     }
 }
 
 async function deleteUserById(userId) {
     try {
-        const result = await coll.deleteOne({ _id: userId });
+        const result = await coll.deleteOne({ _id: new ObjectId(userId) });
 
         return result.deletedCount;
     } catch (error) {
