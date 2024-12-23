@@ -21,8 +21,8 @@ const routes = [
   { path: '/make-report/:id', name: 'MakeReport', component: MakeReport },
   { path: '/fields', name: 'Fields', component: Fields },
   { path: '/public-events', name: 'PublicEvents', component: PublicEvents },
-  { path: '/auth/login', name: 'Login', component: Login },
-  { path: '/auth/register', name: 'Register', component: Register },
+  { path: '/login', name: 'Login', component: Login },
+  { path: '/register', name: 'Register', component: Register },
   { path: '/profile', name: 'Profile', component: Profile },
   { path: '/edit-profile', name: 'EditProfile', component: EditProfile },
 ];
