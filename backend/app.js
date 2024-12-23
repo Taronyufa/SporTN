@@ -4,6 +4,9 @@ require('dotenv').config();
 var express = require('express');
 var app = express();
 var util = require('util');
+const cors = require('cors');
+
+app.use(cors()); // Allow all origins (or configure specific origins)
 
 app.use(express.json());
 app.use(express.urlencoded());
