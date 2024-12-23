@@ -5,7 +5,7 @@
         <nav class="flex gap-4 mb-4 md:mb-0">
           <router-link to="/" class="hover:underline">Home</router-link>
           <router-link to="/my-bookings" class="hover:underline">Mie Prenotazioni</router-link>
-          <router-link to="/book-field" class="hover:underline">Prenota un Campo</router-link>
+          <router-link to="/fields" class="hover:underline">Prenota un Campo</router-link>
           <router-link to="/public-events" class="hover:underline">Eventi Pubblici del Comune</router-link>
         </nav>
   

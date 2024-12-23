@@ -1,7 +1,7 @@
 import { createRouter, createWebHistory } from 'vue-router';
 import Home from '../views/HomeView.vue';
 import MyBookings from '../views/MyBookingsView.vue';
-import MyBooking from '../views/MyBookingView.vue';
+import Booking from '../views/BookingView.vue';
 import MakeBooking from '../views/MakeBookingView.vue';
 import MakeReview from '../views/MakeReviewView.vue';
 import MakeReport from '../views/MakeReportView.vue';
@@ -15,7 +15,7 @@ import EditProfile from '../views/EditProfileView.vue';
 const routes = [
   { path: '/', name: 'Home', component: Home },
   { path: '/my-bookings', name: 'MyBookings', component: MyBookings },
-  { path: '/my-booking/:id', name: 'MyBooking', component: MyBooking },
+  { path: '/booking/:id', name: 'Booking', component: Booking },
   { path: '/book-field/:id', name: 'MakeBooking', component: MakeBooking },
   { path: '/make-review/:id', name: 'MakeReview', component: MakeReview },
   { path: '/make-report/:id', name: 'MakeReport', component: MakeReport },
