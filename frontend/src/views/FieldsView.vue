@@ -1,6 +1,6 @@
 <template>
     <div class="container mx-auto p-6">
-        <h1 class="text-4xl font-bold text-center mb-6">All Fields</h1>
+        <h1 class="text-4xl font-bold text-center mb-6">Tutti i Campi</h1>
 
         <!-- Fields List -->
         <div v-for="field in fields" :key="field.id" class="flex flex-col md:flex-row items-center bg-white shadow-md rounded-lg mb-6 p-4">
@@ -21,7 +21,7 @@
                     @click="navigateToReservation(field._id)"
                     class="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 transition mt-4"
                 >
-                    Reserve This Field
+                    Prenota Questo Campo
                 </button>
             </div>
 
