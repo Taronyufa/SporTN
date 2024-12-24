@@ -15,9 +15,9 @@ import EditProfile from '../views/EditProfileView.vue';
 const routes = [
   { path: '/', name: 'Home', component: Home },
   { path: '/my-bookings', name: 'MyBookings', component: MyBookings },
-  { path: '/booking/:id', name: 'Booking', component: Booking },
-  { path: '/book-field/:id', name: 'MakeBooking', component: MakeBooking },
-  { path: '/make-review/:id', name: 'MakeReview', component: MakeReview },
+  { path: '/bookings/:id', name: 'Booking', component: Booking },
+  { path: '/fields/:id/make-review', name: 'MakeBooking', component: MakeBooking },
+  { path: '/fields/:id/make-report', name: 'MakeReview', component: MakeReview },
   { path: '/make-report/:id', name: 'MakeReport', component: MakeReport },
   { path: '/fields', name: 'Fields', component: Fields },
   { path: '/public-events', name: 'PublicEvents', component: PublicEvents },
