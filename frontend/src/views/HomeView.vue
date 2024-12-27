@@ -20,7 +20,6 @@
         try {
             const response = await fetch(`http://localhost:3000/api/reservations?user_id=${user_id}`);
             my_bookings.value = await response.json();
-            console.log('My bookings:', my_bookings.value);
         } catch (error) {
             console.error('Error fetching my bookings:', error);
         }
