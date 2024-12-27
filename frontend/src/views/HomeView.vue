@@ -79,7 +79,7 @@
         <h2 v-if="user.token" class="text-2xl font-semibold mb-4">Le Tue Prenotazioni</h2>
         <ul class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             <li v-for="booking in my_bookings" :key="booking.id" class="bg-white rounded-lg shadow p-4 cursor-pointer hover:bg-gray-100" @click="navigateToBooking(booking._id)">
-            <h3 class="text-xl font-semibold">Campo: {{ booking.campo }}</h3>
+            <h3 class="text-xl font-semibold">Campo: {{ booking.nome_campo }}</h3>
             <p class="text-gray-600">{{ booking.data }} dalle {{ booking.ora_inizio }} alle {{ booking.ora_fine }}</p>
             <p class="text-gray-600">Sport: {{ booking.sport }}</p>
             <p v-if="booking.pubblico" class="text-gray-600">Stai cercando attivamente compagni di gioco</p>
@@ -95,7 +95,7 @@
         <p class="text-gray-600">Qui puoi trovare prenotazioni di altri utenti che cercano compagni di gioco</p>
         <ul class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             <li v-for="public_reservation in public_reservations" :key="public_reservation.id" class="bg-white rounded-lg shadow p-4 cursor-pointer hover:bg-gray-100" @click="navigateToBooking(public_reservation._id)">
-            <h3 class="text-xl font-semibold">Campo: {{ public_reservation.campo }}</h3>
+            <h3 class="text-xl font-semibold">Campo: {{ public_reservation.nome_campo }}</h3>
             <p class="text-gray-600">{{ public_reservation.data }} dalle {{ public_reservation.ora_inizio }} alle {{ public_reservation.ora_fine }}</p>
             <p class="text-gray-600">Sport: {{ public_reservation.sport }}</p>
             </li>

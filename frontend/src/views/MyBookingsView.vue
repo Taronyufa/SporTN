@@ -8,7 +8,7 @@
             <div v-for="reservation in futureReservations" :key="reservation._id" class="flex flex-col md:flex-row items-center bg-white shadow-md rounded-lg mb-6 p-4 flex-1 md:pr-4 cursor-pointer hover:bg-gray-100" @click="navigateToBooking(reservation._id)">
                 <!-- Reservation Details -->
                 <div>
-                    <h3 class="text-xl font-bold mb-2">{{ reservation.campo }}</h3>
+                    <h3 class="text-xl font-bold mb-2">{{ reservation.nome_campo }}</h3>
                     <p class="text-gray-600 mb-2">Data: {{ reservation.data }}</p>
                     <p class="text-gray-600 mb-2">Ora: {{ reservation.ora_inizio }} - {{ reservation.ora_fine }}</p>
                     <p class="text-gray-600 mb-2">Partecipanti: {{ reservation.n_partecipanti }}</p>
@@ -23,7 +23,7 @@
             <div v-for="reservation in pastReservations" :key="reservation._id" class="flex flex-col md:flex-row items-center bg-white shadow-md rounded-lg mb-6 p-4 flex-1 md:pr-4 cursor-pointer hover:bg-gray-100" @click="navigateToBooking(reservation._id)">
                 <!-- Reservation Details -->
                 <div class="">
-                    <h3 class="text-xl font-bold mb-2">{{ reservation.campo }}</h3>
+                    <h3 class="text-xl font-bold mb-2">{{ reservation.nome_campo }}</h3>
                     <p class="text-gray-600 mb-2">Data: {{ reservation.data }}</p>
                     <p class="text-gray-600 mb-2">Ora: {{ reservation.ora_inizio }} - {{ reservation.ora_fine }}</p>
                     <p class="text-gray-600 mb-2">Partecipanti: {{ reservation.n_partecipanti }}</p>

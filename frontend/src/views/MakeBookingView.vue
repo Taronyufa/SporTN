@@ -157,7 +157,7 @@
 
             // Filter reservations for the current field
             futureReservations.value = futureReservations.value.filter(
-                (reservation) => reservation.campo === fieldId
+                (reservation) => reservation.id_campo === fieldId && new Date(reservation.data) >= new Date()
             );
 
         } catch (error) {
@@ -191,6 +191,7 @@
             });
         
             if (!response.ok) {
+                console.error('Error making reservation:', response);
                 throw new Error('Failed to reserve the field. Please try again.');
             }
 

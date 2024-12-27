@@ -142,11 +142,11 @@
 
     
     function goToReview() {
-        router.push(`/fields/${reservation.campo}/review`);
+        router.push(`/fields/${reservation.id_campo}/review`);
     }
     
     function goToReport() {
-        router.push(`/fields/${reservation.campo}/report`);
+        router.push(`/fields/${reservation.id_campo}/report`);
     }
     
     onMounted(() => {
@@ -159,7 +159,7 @@
         const reservationId = route.params.id;
         fetchReservationDetails(reservationId).then(() => {
         if (reservation) {
-            fetchFieldDetails(reservation.campo);
+            fetchFieldDetails(reservation.id_campo);
         }
         });
     });
