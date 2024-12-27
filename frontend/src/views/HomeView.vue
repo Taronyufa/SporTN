@@ -28,7 +28,10 @@
     async function fetchPublicReservations() {
         try {
             const response = await fetch('http://localhost:3000/api/reservations?public_only=true');
-            public_reservations.value = await response.json();
+
+            // remove the user's public reservations from the list
+            const all_public_reservations = await response.json();
+            public_reservations.value = all_public_reservations.filter(reservation => reservation.utente !== user.user_id);
         } catch (error) {
             console.error('Error fetching public reservations:', error);
         }
