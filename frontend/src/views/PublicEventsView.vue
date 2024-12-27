@@ -57,5 +57,7 @@
     
     onMounted(() => {
         fetchEvents();
+
+        document.title = 'SporTN - Eventi Pubblici';
     });
 </script>

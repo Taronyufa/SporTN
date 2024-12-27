@@ -215,5 +215,7 @@
         const fieldId = route.params.id;
         fetchFieldDetails(fieldId);
         fetchFutureReservations(fieldId);
+
+        document.title = 'SporTN - Prenota Campo';
     });
 </script>

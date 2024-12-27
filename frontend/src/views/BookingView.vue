@@ -160,6 +160,7 @@
         fetchReservationDetails(reservationId).then(() => {
         if (reservation) {
             fetchFieldDetails(reservation.id_campo);
+            document.title = ` SporTN - Booking Details - ${reservation.nome_campo}`; // Set page title
         }
         });
     });

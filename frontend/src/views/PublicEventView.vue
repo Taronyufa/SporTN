@@ -35,6 +35,8 @@
             }
         
             event = await response.json();
+
+            document.title = `SporTN - ${event.nome}`;
         } catch (error) {
             console.error('Error fetching event details:', error);
             router.push('/public-events'); // Redirect to public events if unable to fetch
@@ -44,5 +46,7 @@
     onMounted(() => {
         const eventId = route.params.id;
         fetchEventDetails(eventId);
+
+        document.title = 'SporTN - Evento Pubblico';
     });
 </script>

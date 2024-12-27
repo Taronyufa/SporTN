@@ -79,6 +79,8 @@
   const confirmPassword = ref('');
   const errorMessage = ref('');
   const router = useRouter();
+
+  document.title = 'SporTN - Register';
   
   async function register() {
     if (password.value !== confirmPassword.value) {

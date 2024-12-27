@@ -57,6 +57,8 @@
         fetchMyBookings();
         fetchPublicReservations();
         fetchEvents();
+
+        document.title = 'SporTN - Home';
     });
 </script>
 

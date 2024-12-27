@@ -62,5 +62,6 @@
 
     onMounted(() => {
         fetchFields();
+        document.title = 'SporTN - Tutti i Campi';
     });
 </script>

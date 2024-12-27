@@ -265,5 +265,7 @@
     onMounted(() => {
         fetchUserDetails();
         fetchSports();
+
+        document.title = 'SporTN - Il Tuo Profilo';
     });
 </script>

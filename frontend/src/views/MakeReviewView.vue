@@ -137,5 +137,7 @@
     
         const fieldId = route.params.id;
         fetchFieldDetails(fieldId);
+
+        document.title = 'SporTN - Scrivi Recensione';
     });
 </script>

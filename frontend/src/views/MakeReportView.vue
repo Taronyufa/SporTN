@@ -132,5 +132,7 @@
     
         const fieldId = route.params.id;
         fetchFieldDetails(fieldId);
+
+        document.title = 'SporTN - Invia Segnalazione';
     });
 </script>

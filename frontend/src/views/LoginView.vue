@@ -59,6 +59,8 @@
     const errorMessage = ref('');
     const router = useRouter();
 
+    document.title = 'SporTN - Login';
+
     async function login() {
         try {
             const response = await fetch('http://localhost:3000/api/auth/login', {

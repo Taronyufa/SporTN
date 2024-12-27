@@ -91,5 +91,7 @@
     
     onMounted(() => {
         fetchUserReservations();
+
+        document.title = 'SporTN - Le Tue Prenotazioni';
     });
 </script>
