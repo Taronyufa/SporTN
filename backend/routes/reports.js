@@ -26,7 +26,7 @@ app.post('/', authenticateToken, async(req, res) => {
     data = req.body;
 
     // validate the data
-    if (!data.name || !data.field_id || !data.image_url || !data.description) {
+    if (!data.name || !data.field_id || !data.description) {
         return res.status(400).send('Invalid data');
     } else {
         // convert the date to the correct format
@@ -41,6 +41,10 @@ app.post('/', authenticateToken, async(req, res) => {
         }
 
         var user_id = req.user.id;
+
+        if (!data.image_url) {
+            data.image_url = null;
+        }
 
         var report = {
             utente: user_id,
