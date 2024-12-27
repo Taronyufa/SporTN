@@ -19,6 +19,14 @@
                     <strong>Posizione preferita: </strong>
                     {{ userDetails.preferredLocation || 'Non specificata' }}
                 </p>
+
+                <!-- log out button -->
+                <button
+                    @click="logout"
+                    class="bg-red-500 text-white px-4 py-2 rounded-lg hover:bg-red-600 transition"
+                > 
+                    Logout
+                </button>
             </div>
             
             <!-- Update User Details Form -->
@@ -143,7 +151,11 @@
 <script setup>
     import { ref, onMounted } from 'vue';
     import user from '../states/user';
-    
+    import { clearUser } from '../states/user';
+
+    import { useRouter } from 'vue-router';
+    const router = useRouter();
+
     var userDetails = ref({});
     var sports = ref([]);
     
@@ -241,6 +253,13 @@
         } catch (error) {
             console.error(error);
         }
+    }
+
+    async function logout() {
+        clearUser();
+        
+        // redirect to the home page
+        router.push('/');
     }
     
     onMounted(() => {
