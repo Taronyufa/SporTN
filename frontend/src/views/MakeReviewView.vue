@@ -110,7 +110,7 @@
                     Authorization: `Bearer ${user.token}`,
                 },
                 body: JSON.stringify({
-                    field_id: field._id,
+                    field_id: route.params.id,
                     title: title.value,
                     rating: rating.value,
                     description: description.value,

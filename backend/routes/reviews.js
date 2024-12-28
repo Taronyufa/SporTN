@@ -38,7 +38,7 @@ app.post('/', authenticateToken, async(req, res) => {
     // validate the data
     if (!data.title || !data.field_id || !data.rating || !data.description) {
         return res.status(400).send('Invalid data');
-    } else if (!Number.isInteger(data.rating) || data.rating < 1 || data.rating > 5) {
+    } else if (!Number.isInteger(data.rating) || data.rating < 0 || data.rating > 5) {
         return res.status(400).send('Invalid rating, must be an integer between 1 and 5');
     } else {
         var user_id = req.user.id;
