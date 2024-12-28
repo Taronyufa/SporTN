@@ -14,19 +14,27 @@
                     class="bg-red-500 text-white px-4 py-2 rounded-lg hover:bg-red-600 transition mb-2 mr-2"
                     @click="showDeleteModal = true"
                 >
-                    Delete Reservation
+                    Elimina Prenotazione
                 </button>
                 <button
                     class="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 transition mb-2 mr-2"
                     @click="goToReview"
                 >
-                    Leave a Review
+                    Lascia una Recensione
                 </button>
                 <button
                     class="bg-yellow-500 text-white px-4 py-2 rounded-lg hover:bg-yellow-600 transition"
                     @click="goToReport"
                 >
-                    Make a Report
+                    Fai una Segnalazione
+                </button>
+            </div>
+            <div v-else-if="isPublicReservation" class="mt-4">
+                <button
+                    class="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 transition mb-2 mr-2"
+                    @click="navigateToField(reservation.id_campo)"
+                >
+                    Aggiungiti alla Prenotazione
                 </button>
             </div>
         </div>
@@ -82,6 +90,8 @@
     
     // Check if the logged user made the reservation
     var isUserReservation = false;
+    // Check if the reservation is public
+    var isPublicReservation = false;
     
     async function fetchReservationDetails(reservationId) {
         try {
@@ -99,6 +109,9 @@
 
             // Check if the logged user made the reservation
             isUserReservation = reservation.utente === user.user_id;
+
+            // Check if the reservation is public
+            isPublicReservation = reservation.pubblico;
 
         } catch (error) {
             console.error('Error fetching reservation:', error);
@@ -147,6 +160,10 @@
     
     function goToReport() {
         router.push(`/fields/${reservation.id_campo}/report`);
+    }
+
+    function navigateToField(fieldId) {
+        router.push(`/book-field/${fieldId}`);
     }
     
     onMounted(() => {
