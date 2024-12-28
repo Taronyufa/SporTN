@@ -25,7 +25,7 @@
     const route = useRoute();
     const router = useRouter();
     
-    var event = ref({});
+    const event = ref({});
     
     async function fetchEventDetails(eventId) {
         try {
@@ -34,7 +34,7 @@
                 throw new Error('Failed to fetch event details.');
             }
         
-            event = await response.json();
+            event.value = await response.json();
 
             document.title = `SporTN - ${event.nome}`;
         } catch (error) {

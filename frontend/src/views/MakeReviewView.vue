@@ -72,7 +72,7 @@
     const route = useRoute();
     const router = useRouter();
     
-    var field = ref({});
+    const field = ref({});
     const title = ref('');
     const rating = ref(0);
     const description = ref('');
@@ -84,7 +84,7 @@
                 throw new Error('Failed to fetch field details.');
             }
         
-            field = await response.json();
+            field.value = await response.json();
         } catch (error) {
             console.error('Error fetching field details:', error);
         }

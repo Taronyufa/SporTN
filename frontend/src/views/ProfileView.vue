@@ -156,17 +156,17 @@
     import { useRouter } from 'vue-router';
     const router = useRouter();
 
-    var userDetails = ref({});
-    var sports = ref([]);
+    const userDetails = ref({});
+    const sports = ref([]);
     
-    var username = ref('');
-    var email = ref('');
-    var favoriteSports = ref([]);
-    var preferredLocation = ref('');
+    const username = ref('');
+    const email = ref('');
+    const favoriteSports = ref([]);
+    const preferredLocation = ref('');
     
-    var oldPassword = ref('');
-    var newPassword = ref('');
-    var confirmPassword = ref('');
+    const oldPassword = ref('');
+    const newPassword = ref('');
+    const confirmPassword = ref('');
     
     async function fetchUserDetails() {
         try {
@@ -177,11 +177,11 @@
             if (!response.ok) throw new Error('Failed to fetch user details.');
         
             const data = await response.json();
-            userDetails = data;
-            username = data.username;
-            email = data.email;
-            favoriteSports = data.favoriteSports;
-            preferredLocation = data.preferredLocation;
+            userDetails.value = data;
+            username.value = data.username;
+            email.value = data.email;
+            favoriteSports.value = data.favoriteSports;
+            preferredLocation.value = data.preferredLocation;
         } catch (error) {
             console.error(error);
         }
