@@ -11,6 +11,8 @@ import PublicEvent from '../views/PublicEventView.vue';
 import Login from '../views/LoginView.vue';
 import Register from '../views/RegisterView.vue';
 import Profile from '../views/ProfileView.vue';
+import Reports from '../views/ReportsView.vue';
+import Report from '../views/ReportView.vue';
 
 const routes = [
   { path: '/', name: 'Home', component: Home },
@@ -25,6 +27,8 @@ const routes = [
   { path: '/login', name: 'Login', component: Login },
   { path: '/register', name: 'Register', component: Register },
   { path: '/profile', name: 'Profile', component: Profile },
+  { path: '/reports', name: 'Reports', component: Reports },
+  { path: '/reports/:id', name: 'Report', component: Report },
 ];
 
 const router = createRouter({
