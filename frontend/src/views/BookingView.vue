@@ -155,11 +155,11 @@
 
     
     function goToReview() {
-        router.push(`/fields/${reservation.id_campo}/review`);
+        router.push(`/fields/${reservation.value.id_campo}/review`);
     }
     
     function goToReport() {
-        router.push(`/fields/${reservation.id_campo}/report`);
+        router.push(`/fields/${reservation.value.id_campo}/report`);
     }
 
     function navigateToField(fieldId) {
