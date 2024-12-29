@@ -9,9 +9,10 @@
     
             <!-- Navigation Links -->
             <nav class="flex gap-4">
-            <router-link to="/my-bookings" class="text-white">Le Mie Prenotazioni</router-link>
-            <router-link to="/fields" class="text-white">Prenota un Campo</router-link>
-            <router-link to="/public-events" class="text-white">Eventi Pubblici</router-link>
+                <router-link to="/my-bookings" class="text-white">Le Mie Prenotazioni</router-link>
+                <router-link to="/fields" class="text-white">Prenota un Campo</router-link>
+                <router-link to="/public-events" class="text-white">Eventi Pubblici</router-link>
+                <router-link v-if="user.admin" to="/reports" class="text-white">Tutti i Report</router-link>
             </nav>
     
             <!-- User Options -->
