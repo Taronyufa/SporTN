@@ -26,7 +26,7 @@
                 :key="reservation.id"
                 class="mb-2 text-gray-700"
             >
-                <strong>{{ reservation.data }}:</strong> {{ reservation.ora_inizio }} - {{ reservation.ora_fine }} 
+                <strong>{{ formatDate(reservation.data) }}:</strong> {{ reservation.ora_inizio }} - {{ reservation.ora_fine }} 
                 ({{ reservation.n_partecipanti }} participants). Sport: {{ reservation.sport }}. 
                 {{ reservation.pubblico ? 'Sta cercando altri giocatori.' : '' }}
             </li>
@@ -43,7 +43,7 @@
                 :key="review.id"
                 class="mb-2 text-gray-700"
             >
-                <strong>{{ review.data }}: ({{ review.rating }} Stelle) {{ review.titolo }}</strong>
+                <strong>{{ formatDateTime(review.data) }}: ({{ review.rating }} Stelle) {{ review.titolo }}</strong>
                 <p>{{ review.testo }}</p>
             </li>
             </ul>
@@ -138,6 +138,7 @@
     import { ref, onMounted } from 'vue';
     import { useRoute, useRouter } from 'vue-router';
     import user from '../states/user';
+    import { format } from 'date-fns';
     
     const route = useRoute();
     const router = useRouter();
@@ -234,6 +235,14 @@
             alert('Failed to reserve the field. Please check the form and try again.');
             console.error('Error reserving field:', error);
         }
+    }
+
+    function formatDateTime(dateTimeString) {
+        return format(new Date(dateTimeString), 'dd/MM/yyyy HH:mm');
+    }
+
+    function formatDate(dateString) {
+        return format(new Date(dateString), 'dd/MM/yyyy');
     }
     
     onMounted(() => {

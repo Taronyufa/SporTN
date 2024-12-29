@@ -10,7 +10,7 @@
                     <h2 class="text-xl font-bold">{{ event.nome }}</h2>
 
                     <!-- if the start and end date are different -->
-                    <p class="text-gray-600">{{ event.data_inizio }} - {{ event.data_fine }}</p>
+                    <p class="text-gray-600">{{ formatDateTime(event.data_inizio) }} - {{ formatDateTime(event.data_fine) }}</p>
                     <p class="text-gray-600">Posizione: {{ event.posizione }}</p>
                 </div>
         
@@ -32,8 +32,9 @@
 <script setup>
     import { ref, onMounted } from 'vue';
     import { useRoute, useRouter } from 'vue-router';
-    const router = useRouter();
+    import { format } from 'date-fns';
 
+    const router = useRouter();
     
     const events = ref([]); // Store all events
     
@@ -55,6 +56,10 @@
         router.push(`/public-events/${eventId}`);
     }
     
+    function formatDateTime(dateTimeString) {
+        return format(new Date(dateTimeString), 'dd/MM/yyyy HH:mm');
+    }
+
     onMounted(() => {
         fetchEvents();
 

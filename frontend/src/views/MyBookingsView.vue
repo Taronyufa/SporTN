@@ -9,7 +9,7 @@
                 <!-- Reservation Details -->
                 <div>
                     <h3 class="text-xl font-bold mb-2">{{ reservation.nome_campo }}</h3>
-                    <p class="text-gray-600 mb-2">Data: {{ reservation.data }}</p>
+                    <p class="text-gray-600 mb-2">Data: {{ formatDate(reservation.data) }}</p>
                     <p class="text-gray-600 mb-2">Ora: {{ reservation.ora_inizio }} - {{ reservation.ora_fine }}</p>
                     <p class="text-gray-600 mb-2">Partecipanti: {{ reservation.n_partecipanti }}</p>
                     <p class="text-gray-600">Sport: {{ reservation.sport }}</p>
@@ -24,7 +24,7 @@
                 <!-- Reservation Details -->
                 <div class="">
                     <h3 class="text-xl font-bold mb-2">{{ reservation.nome_campo }}</h3>
-                    <p class="text-gray-600 mb-2">Data: {{ reservation.data }}</p>
+                    <p class="text-gray-600 mb-2">Data: {{ formatDate(reservation.data) }}</p>
                     <p class="text-gray-600 mb-2">Ora: {{ reservation.ora_inizio }} - {{ reservation.ora_fine }}</p>
                     <p class="text-gray-600 mb-2">Partecipanti: {{ reservation.n_partecipanti }}</p>
                     <p class="text-gray-600">Sport: {{ reservation.sport }}</p>
@@ -44,6 +44,7 @@
     import { ref, onMounted } from 'vue';
     import { useRouter } from 'vue-router';
     import user from '../states/user';
+    import { format } from 'date-fns';
     
     const router = useRouter();
     
@@ -85,8 +86,11 @@
     }
 
     function navigateToBooking(bookingId) {
-        console.log('Navigating to booking:', bookingId);
         router.push(`/bookings/${bookingId}`);
+    }
+
+    function formatDate(dateString) {
+        return format(new Date(dateString), 'dd/MM/yyyy');
     }
     
     onMounted(() => {

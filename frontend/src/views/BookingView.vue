@@ -1,9 +1,9 @@
 <template>
-    <div class="container mx-auto p-6 grid grid-cols-1 md:grid-cols-2 gap-6">
+    <div v-if="reservation" class="container mx-auto p-6 grid grid-cols-1 md:grid-cols-2 gap-6">
         <!-- Reservation Details -->
         <div class="bg-white shadow-md rounded-lg p-4">
             <h1 class="text-2xl font-bold mb-4">Dettagli della Prenotazione</h1>
-            <p class="text-gray-600 mb-2"><strong>Data:</strong> {{ reservation.data }}</p>
+            <p class="text-gray-600 mb-2"><strong>Data:</strong> {{ formatDate(reservation.data) }}</p>
             <p class="text-gray-600 mb-2"><strong>Ora:</strong> {{ reservation.ora_inizio }} - {{ reservation.ora_fine }}</p>
             <p class="text-gray-600 mb-2"><strong>Numero Partecipanti:</strong> {{ reservation.n_partecipanti }}</p>
             <p class="text-gray-600 mb-2"><strong>Sport:</strong> {{ reservation.sport }}</p>
@@ -80,12 +80,13 @@
     import { useRoute, useRouter } from 'vue-router';
     import { computed } from "vue";
     import user from '../states/user';
+    import { format } from 'date-fns';
     
     const route = useRoute();
     const router = useRouter();
     
-    var reservation = ref({});
-    var field = ref({});
+    const reservation = ref(null);
+    const field = ref({});
     const showDeleteModal = ref(false); // State for showing the delete modal
     
     // Check if the logged user made the reservation
@@ -105,14 +106,13 @@
                 throw new Error('Failed to fetch reservation details.');
             }
         
-            reservation = await response.json();
+            reservation.value = await response.json();
 
             // Check if the logged user made the reservation
-            isUserReservation = reservation.utente === user.user_id;
+            isUserReservation = reservation.value.utente === user.user_id;
 
             // Check if the reservation is public
-            isPublicReservation = reservation.pubblico;
-
+            isPublicReservation = reservation.value.pubblico;
         } catch (error) {
             console.error('Error fetching reservation:', error);
             // router.push('/my-reservations'); // Redirect if unable to fetch
@@ -165,6 +165,10 @@
     function navigateToField(fieldId) {
         router.push(`/book-field/${fieldId}`);
     }
+
+    function formatDate(dateString) {
+        return format(new Date(dateString), 'dd/MM/yyyy');
+    }
     
     onMounted(() => {
         if (!user.token) {
@@ -176,7 +180,7 @@
         const reservationId = route.params.id;
         fetchReservationDetails(reservationId).then(() => {
         if (reservation) {
-            fetchFieldDetails(reservation.id_campo);
+            fetchFieldDetails(reservation.value.id_campo);
             document.title = ` SporTN - Booking Details - ${reservation.nome_campo}`; // Set page title
         }
         });

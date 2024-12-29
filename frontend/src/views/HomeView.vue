@@ -3,6 +3,8 @@
     import user  from '../states/user';
     import { useRouter } from 'vue-router';
 
+    import { format } from 'date-fns';
+
     const my_bookings = ref([]);
     const public_reservations = ref([]);
     const events = ref([]);
@@ -56,6 +58,14 @@
         router.push(`/public-events/${eventId}`);
     }
 
+    function formatDateTime(dateTimeString) {
+        return format(new Date(dateTimeString), 'dd/MM/yyyy HH:mm');
+    }
+
+    function formatDate(dateString) {
+        return format(new Date(dateString), 'dd/MM/yyyy');
+    }
+
     onMounted(() => {
         fetchMyBookings();
         fetchPublicReservations();
@@ -85,7 +95,7 @@
         <ul class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             <li v-for="booking in my_bookings" :key="booking.id" class="bg-white rounded-lg shadow p-4 cursor-pointer hover:bg-gray-100" @click="navigateToBooking(booking._id)">
             <h3 class="text-xl font-semibold">Campo: {{ booking.nome_campo }}</h3>
-            <p class="text-gray-600">{{ booking.data }} dalle {{ booking.ora_inizio }} alle {{ booking.ora_fine }}</p>
+            <p class="text-gray-600">{{ formatDate(booking.data) }} dalle {{ booking.ora_inizio }} alle {{ booking.ora_fine }}</p>
             <p class="text-gray-600">Sport: {{ booking.sport }}</p>
             <p v-if="booking.pubblico" class="text-gray-600">Stai cercando attivamente compagni di gioco</p>
             <p v-if="!booking.pubblico" class="text-gray-600">Questa prenotazione è privata</p>
@@ -101,7 +111,7 @@
         <ul class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             <li v-for="public_reservation in public_reservations" :key="public_reservation.id" class="bg-white rounded-lg shadow p-4 cursor-pointer hover:bg-gray-100" @click="navigateToBooking(public_reservation._id)">
             <h3 class="text-xl font-semibold">Campo: {{ public_reservation.nome_campo }}</h3>
-            <p class="text-gray-600">{{ public_reservation.data }} dalle {{ public_reservation.ora_inizio }} alle {{ public_reservation.ora_fine }}</p>
+            <p class="text-gray-600">{{ formatDate(public_reservation.data) }} dalle {{ public_reservation.ora_inizio }} alle {{ public_reservation.ora_fine }}</p>
             <p class="text-gray-600">Sport: {{ public_reservation.sport }}</p>
             </li>
         </ul>
@@ -120,7 +130,7 @@
             @click="navigateToEvent(event._id)"
             >
             <h3 class="text-xl font-semibold">{{ event.nome }}</h3>
-            <p class="text-gray-600">Data: {{ event.data_inizio }}</p>
+            <p class="text-gray-600">Data: {{ formatDateTime(event.data_inizio) }}</p>
             <p class="text-gray-600">Luogo: {{ event.posizione }}</p>
             </li>
         </ul>

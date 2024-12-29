@@ -3,8 +3,8 @@
         <div v-if="event" class="bg-white shadow-md rounded-lg p-6">
             <!-- Event Details -->
             <h1 class="text-3xl font-bold mb-4">{{ event.nome }}</h1>
-            <p class="text-gray-600 mb-2"><strong>Data e Ora Inizio:</strong> {{ event.data_inizio }}</p>
-            <p class="text-gray-600 mb-2"><strong>Data e Ora Fine:</strong> {{ event.data_fine }}</p>
+            <p class="text-gray-600 mb-2"><strong>Data e Ora Inizio:</strong> {{ formatDateTime(event.data_inizio) }}</p>
+            <p class="text-gray-600 mb-2"><strong>Data e Ora Fine:</strong> {{ formatDateTime(event.data_fine) }}</p>
             <p class="text-gray-600 mb-2"><strong>Posizione:</strong> {{ event.posizione }}</p>
             <p class="text-gray-600 mb-2"><strong>Description:</strong> {{ event.descrizione }}</p>
             
@@ -21,11 +21,12 @@
 <script setup>
     import { ref, onMounted } from 'vue';
     import { useRoute, useRouter } from 'vue-router';
+    import { format } from 'date-fns';
     
     const route = useRoute();
     const router = useRouter();
     
-    const event = ref({});
+    const event = ref(null);
     
     async function fetchEventDetails(eventId) {
         try {
@@ -36,11 +37,15 @@
         
             event.value = await response.json();
 
-            document.title = `SporTN - ${event.nome}`;
+            document.title = `SporTN - ${event.value.nome}`;
         } catch (error) {
             console.error('Error fetching event details:', error);
             router.push('/public-events'); // Redirect to public events if unable to fetch
         }
+    }
+
+    function formatDateTime(dateTimeString) {
+        return format(new Date(dateTimeString), 'dd/MM/yyyy HH:mm');
     }
     
     onMounted(() => {
