@@ -91,14 +91,6 @@
         }
     
         try {
-            console.log(
-                {
-                    field_id: field._id,
-                    name: title.value,
-                    description: description.value,
-                }
-            )
-
             const response = await fetch(`http://localhost:3000/api/reports`, {
                 method: 'POST',
                 headers: {
@@ -106,7 +98,7 @@
                     Authorization: `Bearer ${user.token}`,
                 },
                 body: JSON.stringify({
-                    field_id: field._id,
+                    field_id: field.value._id,
                     name: title.value,
                     description: description.value,
                 }),
