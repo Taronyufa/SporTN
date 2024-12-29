@@ -1,6 +1,6 @@
 <template>
     <div class="container mx-auto p-6">
-        <h1 class="text-3xl font-bold text-center mb-6">Report Details</h1>
+        <h1 class="text-3xl font-bold text-center mb-6">Dettagli Segnalazione</h1>
     
         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
             <!-- Report Details -->
@@ -41,7 +41,7 @@
                 type="submit"
                 class="bg-green-500 text-white px-4 py-2 rounded-lg hover:bg-green-600 transition"
             >
-                Update Status
+                Aggiorna Stato
             </button>
             </form>
         </div>

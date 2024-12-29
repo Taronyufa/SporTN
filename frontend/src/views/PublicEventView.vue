@@ -6,7 +6,7 @@
             <p class="text-gray-600 mb-2"><strong>Data e Ora Inizio:</strong> {{ formatDateTime(event.data_inizio) }}</p>
             <p class="text-gray-600 mb-2"><strong>Data e Ora Fine:</strong> {{ formatDateTime(event.data_fine) }}</p>
             <p class="text-gray-600 mb-2"><strong>Posizione:</strong> {{ event.posizione }}</p>
-            <p class="text-gray-600 mb-2"><strong>Description:</strong> {{ event.descrizione }}</p>
+            <p class="text-gray-600 mb-2"><strong>Descrizione:</strong> {{ event.descrizione }}</p>
             
             <!-- Event Image -->
             <img

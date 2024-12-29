@@ -34,7 +34,7 @@
 
         <!-- No Reservations -->
         <p v-if="!futureReservations.length && !pastReservations.length" class="text-gray-500 text-center">
-            You have no reservations.
+            Non hai ancora effettuato nessuna prenotazione.
         </p>
     </div>
 </template>

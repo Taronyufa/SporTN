@@ -11,7 +11,7 @@
               id="username"
               v-model="username"
               type="text"
-              placeholder="Enter your username"
+              placeholder="Inserisci il tuo username"
               class="w-full p-3 border rounded-lg focus:outline-none focus:ring focus:ring-blue-300"
             />
           </div>
@@ -23,7 +23,7 @@
               id="email"
               v-model="email"
               type="email"
-              placeholder="Enter your email"
+              placeholder="Inserisci la tua email"
               class="w-full p-3 border rounded-lg focus:outline-none focus:ring focus:ring-blue-300"
             />
           </div>
@@ -35,7 +35,7 @@
               id="password"
               v-model="password"
               type="password"
-              placeholder="Enter your password"
+              placeholder="Inserisci la tua password"
               class="w-full p-3 border rounded-lg focus:outline-none focus:ring focus:ring-blue-300"
             />
           </div>
@@ -47,7 +47,7 @@
               id="confirmPassword"
               v-model="confirmPassword"
               type="password"
-              placeholder="Confirm your password"
+              placeholder="Conferma la tua password"
               class="w-full p-3 border rounded-lg focus:outline-none focus:ring focus:ring-blue-300"
             />
           </div>
@@ -62,7 +62,7 @@
             type="submit"
             class="w-full bg-blue-500 text-white p-3 rounded-lg hover:bg-blue-600 transition"
           >
-            Register
+            Registrati
           </button>
         </form>
       </div>

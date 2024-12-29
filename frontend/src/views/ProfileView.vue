@@ -80,7 +80,7 @@
                             id="preferredLocation"
                             v-model="preferredLocation"
                             type="text"
-                            placeholder="Enter your preferred location"
+                            placeholder="Inserisci la tua posizione preferita"
                             class="w-full p-3 border rounded-lg focus:outline-none focus:ring focus:ring-blue-300"
                         />
                     </div>
@@ -90,7 +90,7 @@
                         type="submit"
                         class="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 transition"
                     >
-                        Save Changes
+                        Salva modifiche
                     </button>
                 </form>
             </div>
@@ -106,7 +106,7 @@
                         id="oldPassword"
                         v-model="oldPassword"
                         type="password"
-                        placeholder="Enter your old password"
+                        placeholder="Inserisci la tua vecchia password"
                         class="w-full p-3 border rounded-lg focus:outline-none focus:ring focus:ring-blue-300"
                     />
                     </div>
@@ -118,7 +118,7 @@
                         id="newPassword"
                         v-model="newPassword"
                         type="password"
-                        placeholder="Enter your new password"
+                        placeholder="Inserisci la tua nuova password"
                         class="w-full p-3 border rounded-lg focus:outline-none focus:ring focus:ring-blue-300"
                     />
                     </div>
@@ -130,7 +130,7 @@
                         id="confirmPassword"
                         v-model="confirmPassword"
                         type="password"
-                        placeholder="Confirm your new password"
+                        placeholder="Conferma la tua nuova password"
                         class="w-full p-3 border rounded-lg focus:outline-none focus:ring focus:ring-blue-300"
                     />
                     </div>
@@ -140,7 +140,7 @@
                         type="submit"
                         class="bg-red-500 text-white px-4 py-2 rounded-lg hover:bg-red-600 transition"
                     >
-                        Change Password
+                        Cambia Password
                     </button>
                 </form>
             </div>

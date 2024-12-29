@@ -52,11 +52,11 @@
 
         <!-- Reservation Form -->
         <div v-if="field" class="bg-white shadow-md rounded-lg p-4">
-            <h2 class="text-2xl font-bold mb-4">Reserve This Field</h2>
+            <h2 class="text-2xl font-bold mb-4">Prenota Campo</h2>
             <form @submit.prevent="makeReservation">
                 <!-- Date -->
                 <div class="mb-4">
-                    <label for="date" class="block text-gray-700 font-medium mb-2">Date</label>
+                    <label for="date" class="block text-gray-700 font-medium mb-2">Data</label>
                     <input
                     id="date"
                     v-model="reservationDate"
@@ -67,7 +67,7 @@
 
                 <!-- Start Time -->
                 <div class="mb-4">
-                    <label for="startTime" class="block text-gray-700 font-medium mb-2">Start Time</label>
+                    <label for="startTime" class="block text-gray-700 font-medium mb-2">Ora Inizio</label>
                     <input
                     id="startTime"
                     v-model="startTime"
@@ -78,7 +78,7 @@
 
                 <!-- End Time -->
                 <div class="mb-4">
-                    <label for="endTime" class="block text-gray-700 font-medium mb-2">End Time</label>
+                    <label for="endTime" class="block text-gray-700 font-medium mb-2">Ora Fine</label>
                     <input
                     id="endTime"
                     v-model="endTime"
@@ -89,7 +89,7 @@
 
                 <!-- Number of Participants -->
                 <div class="mb-4">
-                    <label for="participants" class="block text-gray-700 font-medium mb-2">Number of Participants</label>
+                    <label for="participants" class="block text-gray-700 font-medium mb-2">Numero di Partecipanti</label>
                     <input
                     id="participants"
                     v-model.number="participants"
@@ -119,7 +119,7 @@
                     type="checkbox"
                     class="mr-2"
                     />
-                    <label for="searching" class="text-gray-700 font-medium">Actively Searching for Other Players</label>
+                    <label for="searching" class="text-gray-700 font-medium">Pubblica la prenotazione per cercare altri giocatori</label>
                 </div>
 
                 <!-- Submit Button -->
@@ -127,7 +127,7 @@
                     type="submit"
                     class="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 transition"
                 >
-                    Reserve Field
+                    Prenota Campo
                 </button>
             </form>
         </div>
