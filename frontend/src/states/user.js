@@ -4,7 +4,7 @@ const user = reactive({
   token: localStorage.getItem('token') || null, // Load from localStorage on initialization
   email: localStorage.getItem('email') || null,
   user_id: localStorage.getItem('user_id') || null,
-  admin: localStorage.getItem('admin') || null,
+  admin: JSON.parse(localStorage.getItem('admin')) || false,
 });
 
 export const setUser = (data) => {
