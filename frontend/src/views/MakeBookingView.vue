@@ -34,6 +34,22 @@
             <p v-if="!futureReservations.length" class="text-gray-500">Nessuna prenotazione per questo campo.</p>
         </div>
 
+        <!-- Reviews -->
+        <div class="bg-white shadow-md rounded-lg p-4 mb-6">
+            <h2 class="text-2xl font-bold mb-4">Recensioni</h2>
+            <ul>
+            <li
+                v-for="review in reviews"
+                :key="review.id"
+                class="mb-2 text-gray-700"
+            >
+                <strong>{{ review.data }}: ({{ review.rating }} Stelle) {{ review.titolo }}</strong>
+                <p>{{ review.testo }}</p>
+            </li>
+            </ul>
+            <p v-if="!reviews.length" class="text-gray-500">Nessuna recensione per questo campo.</p>
+        </div>
+
         <!-- Reservation Form -->
         <div v-if="field" class="bg-white shadow-md rounded-lg p-4">
             <h2 class="text-2xl font-bold mb-4">Reserve This Field</h2>
@@ -134,6 +150,8 @@
     const participants = ref(0);
     const selectedSport = ref('');
     const is_public = ref(false);
+
+    const reviews = ref([]);
     
     async function fetchFieldDetails(fieldId) {
         try {
@@ -162,6 +180,19 @@
 
         } catch (error) {
             console.error('Error fetching reservations:', error);
+        }
+    }
+
+    async function fetchReviews(fieldId) {
+        try {
+            const response = await fetch(`http://localhost:3000/api/reviews?field_id=${fieldId}`);
+            if (!response.ok) {
+                throw new Error('Failed to fetch reviews.');
+            }
+        
+            reviews.value = await response.json();
+        } catch (error) {
+            console.error('Error fetching reviews:', error);
         }
     }
     
@@ -215,6 +246,7 @@
         const fieldId = route.params.id;
         fetchFieldDetails(fieldId);
         fetchFutureReservations(fieldId);
+        fetchReviews(fieldId);
 
         document.title = 'SporTN - Prenota Campo';
     });
