@@ -72,9 +72,9 @@ app.post('/', authenticateToken, async (req, res) => {
         res.status(400).send('sport is required');
     } else {
 
-        // check that the field_id exists
-        var field_exists = await fieldExists(data.field_id);
-        if (!field_exists) {
+        // check that the field_id exists, if it exists, get the name of the field
+        var field_name = await getFieldName(data.field_id);
+        if (!field_name) {
             return res.status(400).send('Field does not exist');
         }
 
@@ -101,13 +101,14 @@ app.post('/', authenticateToken, async (req, res) => {
             
             var reservation = {
                 utente: user_id,
-                campo: data.field_id,
                 data: data.date,
                 ora_inizio: data.start_time,
                 ora_fine: data.end_time,
                 n_partecipanti: data.participants,
                 sport: data.sport,
                 pubblico: data.is_public,
+                id_campo: data.field_id,
+                nome_campo: field_name
             };
             
             // save the reservation to the database
@@ -228,21 +229,21 @@ async function deleteReservationById(reservationId) {
     }
 }
 
-async function fieldExists(fieldId) {
+async function getFieldName(fieldId) {
     try {
         var fieldCollection = client.getDb().collection('campo');
         const field = await fieldCollection.findOne({ _id: new ObjectId(fieldId) });
-        return field ? true : false;
+        return field ? field.nome : false;
     } catch (error) {
         console.error("Error fetching field:", error);
         return false;
     }
 }
 
-async function sportExists(sportId) {
+async function sportExists(sportName) {
     try {
         var sportCollection = client.getDb().collection('sport');
-        const sport = await sportCollection.findOne({ _id: new ObjectId(sportId) });
+        const sport = await sportCollection.findOne({ nome: sportName });
         return sport ? true : false;
     } catch (error) {
         console.error("Error fetching sport:", error);

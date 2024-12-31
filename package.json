@@ -2,21 +2,36 @@
   "name": "sportn",
   "version": "1.0.0",
   "description": "a project for software engineering course",
-  "main": "app.js",
+  "main": "backend/app.js",
   "scripts": {
-    "start": "node app.js",
-    "dev": "nodemon server",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "start": "node backend/app.js",
+    "frontend": "npm --prefix frontend run",
+    "dev:frontend": "npm --prefix frontend run dev",
+    "build:frontend": "npm --prefix frontend run build",
+    "dev": "concurrently \"npm run dev:frontend\" \"npm run dev:backend\"",
+    "dev:backend": "nodemon backend/app.js",
+    "build": "npm run build:frontend"
   },
   "license": "MIT",
   "dependencies": {
     "bcrypt": "^5.1.1",
+    "cors": "^2.8.5",
     "dotenv": "^16.4.5",
     "express": "^4.16.3",
     "jsonwebtoken": "^9.0.2",
-    "mongodb": "^6.10.0"
+    "mongodb": "^6.10.0",
+    "vue": "^3.5.13",
+    "vue-router": "^4.5.0"
   },
   "devDependencies": {
-    "nodemon": "^3.1.4"
+    "@vitejs/plugin-vue": "^5.2.1",
+    "autoprefixer": "^10.4.20",
+    "concurrently": "^9.1.0",
+    "daisyui": "^4.12.22",
+    "nodemon": "^3.1.4",
+    "postcss": "^8.4.49",
+    "tailwindcss": "^3.4.16",
+    "vite": "^6.0.1",
+    "vite-plugin-vue-devtools": "^7.6.5"
   }
 }

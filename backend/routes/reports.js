@@ -5,7 +5,7 @@ var app = express();
 const { ObjectId } = require('mongodb');
 var client = require('../connection.js');
 var coll = client.getDb().collection('segnalazione');
-const { authenticateToken, checkAdmin } = require('../middleware/auth');
+const { authenticateToken, checkAdmin } = require('../middleware/auth.js');
 
 app.use(express.json());
 
@@ -26,7 +26,7 @@ app.post('/', authenticateToken, async(req, res) => {
     data = req.body;
 
     // validate the data
-    if (!data.name || !data.field_id || !data.image_url || !data.description) {
+    if (!data.name || !data.field_id || !data.description) {
         return res.status(400).send('Invalid data');
     } else {
         // convert the date to the correct format
@@ -41,15 +41,22 @@ app.post('/', authenticateToken, async(req, res) => {
         }
 
         var user_id = req.user.id;
+        var user_email = req.user.email;
+
+        if (!data.image_url) {
+            data.image_url = null;
+        }
 
         var report = {
-            utente: user_id,
+            id_utente: user_id,
+            email_utente: user_email,
             titolo: data.name,
             testo: data.description,
             data: date_obj,
-            campo: data.field_id,
+            id_campo: data.field_id,
+            nome_campo: field.nome,
             foto_url: data.image_url,
-            status: "not resolved"
+            status: "Non risolto"
         };
 
         // save the report in the database
