@@ -1,0 +1,795 @@
+openapi: 3.0.0
+info:
+  title: API SporTN
+  version: “1.0.0”
+  description: API specification for SporTN.
+
+paths:
+  /api/auth/register:
+    post:
+      summary: Register a new user.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                username:
+                  type: string
+                email:
+                  type: string
+                password:
+                  type: string
+      responses:
+        '201':
+          description: successfully registered user.
+  
+  /api/auth/login:
+    post:
+      summary: Authenticate a user.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                email:
+                  type: string
+                password:
+                  type: string
+      responses:
+        '200':
+          description: successfully logged in.
+
+  /api/auth/change-password:
+    post:
+      summary: Change the password of the authenticated user.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                current_password:
+                  type: string
+                new_password:
+                  type: string
+      responses:
+        '200':
+          description: password changed successfully.
+
+  /api/users/me:
+    get:
+      summary: Gets the data of the authenticated user.
+      responses:
+        '200':
+          description: user's information.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  username:
+                    type: string
+                  email:
+                    type: string
+                  profile_image_url:
+                    type: string
+                  favorite_sports:
+                    type: array
+                    elements:
+                      type: string
+                  preferred_location:
+                    type: string
+    put:
+      summary: Update user profile data.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                username:
+                  type: string
+                email:
+                  type: string
+                profile_image_url:
+                  type: string
+                favorite_sports:
+                  type: array
+                  elements:
+                    type: string
+                preferred_location:
+                  type: string
+      responses:
+        '200':
+          description: updated profile.
+
+  /api/users/{id}:
+    get:
+      summary: Gets the data of a specific user.
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: user's information.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  username:
+                    type: string
+                  email:
+                    type: string
+                  profile_image_url:
+                    type: string
+                  favorite_sports:
+                    type: array
+                    elements:
+                      type: string
+                  preferred_location:
+                    type: string
+    delete:
+      summary: Deletes a specific user.
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '204':
+          description: user deleted.
+
+  /api/reservations:
+    get:
+      summary: Gets the list of all reservations.
+      parameters:
+        - name: public_only
+          in: query
+          schema:
+            type: boolean
+            default: false
+        - name: user_id
+          in: query
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: reservation list.
+          content:
+            application/json:
+              schema:
+                type: array
+                elements:
+                  type: object
+                  properties:
+                    reservation_id:
+                      type: integer
+                    field_id:
+                      type: integer
+                    field_name:
+                      type: string
+                    user_id:
+                      type: integer
+                    date:
+                      type: string
+                      format: date-time
+                    start_time:
+                      type: string
+                    end_time:
+                      type: string
+                    location:
+                      type: string
+                    is_upcoming:
+                      type: boolean
+                    is_public:
+                      type: boolean
+
+    post:
+      summary: Creates a new reservation.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                field_id:
+                  type: integer
+                date:
+                  type: string
+                  format: date
+                start_time:
+                  type: string
+                end_time:
+                  type: string
+                participants:
+                  type: integer
+                is_public:
+                  type: boolean
+                sport:
+                  type: string
+      responses:
+        '201':
+          description: reservation created.
+
+  /api/reservations/{id}:
+    get:
+      summary: Gets the details of a single reservation.
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: reservation details.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  reservation_id:
+                    type: integer
+                  field_id:
+                    type: integer
+                  field_name:
+                    type: string
+                  date:
+                    type: string
+                    format: date
+                  start_time:
+                    type: string
+                  end_time:
+                      type: string
+                  location:
+                    type: string
+                  participants:
+                    type: integer
+                  sport:
+                    type: string
+                  is_public:
+                    type: boolean
+
+    delete:
+      summary: Deletes a specific reservation.
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '204':
+          description: reservation deleted.
+
+  /api/fields:
+    get:
+      summary: Gets the list of all available fields.
+      responses:
+        '200':
+          description: list of available fields.
+          content:
+            application/json:
+              schema:
+                type: array
+                elements:
+                  type: object
+                  properties:
+                    field_id:
+                      type: integer
+                    name:
+                      type: string
+                    location:
+                      type: string
+                    image_url:
+                      type: string
+                    google_maps_link:
+                      type: string
+                    is_available:
+                      type: boolean
+                    sports_supported:
+                      type: array
+                      items:
+                        type: string
+
+    post:
+      summary: Adds a new field to the list of available fields.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                location:
+                  type: string
+                image_url:
+                  type: string
+                google_maps_link:
+                  type: string
+                is_available:
+                  type: boolean
+                sports_supported:
+                  type: array
+                  items:
+                    type: string
+      responses:
+        '201':
+          description: Field added.
+  
+  /api/fields/{id}:
+    get:
+      summary: Gets the details of a specific field.
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Field details.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  field_id:
+                    type: integer
+                  name:
+                    type: string
+                  location:
+                    type: string
+                  image_url:
+                    type: string
+                  google_maps_link:
+                    type: string
+                  is_available:
+                    type: boolean
+                  sports_supported:
+                    type: array
+                    items:
+                      type: string
+
+    delete:
+      summary: Deletes a specific field.
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '204':
+          description: Field deleted.
+    put:
+      summary: Updates the details of a specific field.
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                location:
+                  type: string
+                image_url:
+                  type: string
+                google_maps_link:
+                  type: string
+                is_available:
+                  type: boolean
+                sports_supported:
+                  type: array
+                  items:
+                    type: string
+      responses:
+        '200':
+          description: Field updated.
+  
+  /api/events:
+    get:
+      summary: Gets the list of public events created by the municipality.
+      responses:
+        '200':
+          description: Public events list.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    event_id:
+                      type: integer
+                    name:
+                      type: string
+                    location:
+                      type: string
+                    start_date:
+                      type: string
+                      format: date-time
+                    start_time:
+                      type: string
+                    end_date:
+                      type: string
+                      format: date-time
+                    end_time:
+                      type: string
+                    poster:
+                      type: string
+                    description:
+                      type: string
+
+    post:
+      summary: Create a new public event.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                location:
+                  type: string
+                start_datetime:
+                  type: string
+                  format: date-time
+                end_datetime:
+                  type: string
+                  format: date-time
+                image_url:
+                  type: string
+                description:
+                  type: string
+      responses:
+        '201':
+          description: Public event created.
+
+  /api/events/{id}:
+    get:
+      summary: Gets the details of a specific public event.
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Public event details.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  event_id:
+                    type: integer
+                  name:
+                    type: string
+                  location:
+                    type: string
+                  start_date:
+                    type: string
+                    format: date-time
+                  start_time:
+                    type: string
+                  end_date:
+                    type: string
+                    format: date-time
+                  end_time:
+                    type: string
+                  poster:
+                    type: string
+                  description:
+                    type: string
+    delete:
+      summary: Deletes a specific public event.
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '204':
+          description: Public event deleted.
+
+  /api/reviews:
+    get:
+      summary: Gets the list of reviews.
+      parameters:
+        - name: field_id
+          in: query
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: List of reviews.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    review_id:
+                      type: integer
+                    title:
+                      type: string
+                    field_id:
+                      type: integer
+                    user_id:
+                      type: integer
+                    rating:
+                      type: integer
+                    description:
+                      type: string
+                    date:
+                      type: string
+                      format: date-time
+    post:
+      summary: Submit a review about a field.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                field_id:
+                  type: integer
+                title:
+                    type: string
+                rating:
+                  type: integer
+                description:
+                  type: string
+      responses:
+        '201':
+          description: Review created.
+
+  /api/reviews/{id}:
+    get:
+      summary: Gets the details of a specific review.
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Review details.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  review_id:
+                    type: integer
+                  field_id:
+                    type: integer
+                  title:
+                    type: string
+                  user_id:
+                    type: integer
+                  rating:
+                    type: integer
+                  description:
+                    type: string
+                  date:
+                    type: string
+                    format: date-time
+    delete:
+      summary: Deletes a specific review.
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '204':
+          description: Review deleted.
+
+  /api/reports:
+    get:
+      summary: Gets the list of reports.
+      responses:
+        '200':
+          description: List of reports.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    report_id:
+                      type: integer
+                    field_id:
+                      type: integer
+                    status:
+                      type: string
+                    date:
+                      type: string
+                      format: date-time
+                    time:
+                      type: string
+    post:
+      summary: Submit a problem report about a field.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                field_id:
+                  type: integer
+                image_url:
+                  type: string
+                description:
+                  type: string
+      responses:
+        '201':
+          description: Report created.
+
+  /api/reports/{id}:
+    get:
+      summary: Gets the details of a specific report.
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Report details.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  report_id:
+                    type: integer
+                  field_id:
+                    type: integer
+                  status:
+                    type: string
+                  date:
+                    type: string
+                    format: date-time
+                  time:
+                    type: string
+                  image_url:
+                    type: string
+                  description:
+                    type: string
+    delete:
+      summary: Deletes a specific report.
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '204':
+          description: Report deleted.
+
+  /api/reports/{id}/status:
+    put:
+      summary: Change the status of a report.
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                status:
+                  type: string
+      responses:
+        '200':
+          description: Report status updated.
+
+  /api/sports:
+    get:
+      summary: Gets the list of available sports.
+      responses:
+        '200':
+          description: Lista di sport.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    sport_id:
+                      type: integer
+                    name:
+                      type: string
+
+    post:
+      summary: Adds a sport to the list of available sports.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+      responses:
+        '201':
+          description: Sport added.
+
+  /api/sports/{id}:
+    get:
+      summary: Gets the nape of a specific sport.
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Sport name.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  sport_id:
+                    type: integer
+                  name:
+                    type: string
+    delete:
+      summary: Remove a sport from the list of available sports.
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '204':
+          description: Sport deleted.
