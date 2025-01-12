@@ -5,6 +5,8 @@
 
     import { format } from 'date-fns';
 
+    const API_URL = import.meta.env.VITE_API_HOST;
+
     const my_bookings = ref([]);
     const public_reservations = ref([]);
     const events = ref([]);
@@ -20,7 +22,7 @@
         }
 
         try {
-            const response = await fetch(`http://localhost:3000/api/reservations?user_id=${user_id}`);
+            const response = await fetch(API_URL + `/reservations?user_id=${user_id}`);
             my_bookings.value = await response.json();
         } catch (error) {
             console.error('Error fetching my bookings:', error);
@@ -29,7 +31,7 @@
 
     async function fetchPublicReservations() {
         try {
-            const response = await fetch('http://localhost:3000/api/reservations?public_only=true');
+            const response = await fetch(API_URL + '/reservations?public_only=true');
 
             // remove the user's public reservations from the list
             const all_public_reservations = await response.json();
@@ -41,7 +43,7 @@
 
     async function fetchEvents() {
         try {
-            const response = await fetch('http://localhost:3000/api/events');
+            const response = await fetch(API_URL + '/events');
             events.value = await response.json();
         } catch (error) {
             console.error('Error fetching events:', error);

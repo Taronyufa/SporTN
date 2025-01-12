@@ -45,6 +45,8 @@
     import { useRouter } from 'vue-router';
     import user from '../states/user';
     import { format } from 'date-fns';
+
+    const API_URL = import.meta.env.VITE_API_HOST;
     
     const router = useRouter();
     
@@ -59,7 +61,7 @@
         }
     
         try {
-            const response = await fetch(`http://localhost:3000/api/reservations?user_id=${user.user_id}`, {
+            const response = await fetch(API_URL + `/reservations?user_id=${user.user_id}`, {
             method: 'GET',
             headers: {
             Authorization: `Bearer ${user.token}`,

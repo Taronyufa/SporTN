@@ -56,6 +56,8 @@
     import { ref, onMounted } from 'vue';
     import { useRoute, useRouter } from 'vue-router';
     import user from '../states/user';
+
+    const API_URL = import.meta.env.VITE_API_HOST;
     
     const route = useRoute();
     const router = useRouter();
@@ -66,7 +68,7 @@
     
     async function fetchFieldDetails(fieldId) {
         try {
-            const response = await fetch(`http://localhost:3000/api/fields/${fieldId}`);
+            const response = await fetch(API_URL + `/fields/${fieldId}`);
             if (!response.ok) {
                 throw new Error('Failed to fetch field details.');
             }
@@ -91,7 +93,7 @@
         }
     
         try {
-            const response = await fetch(`http://localhost:3000/api/reports`, {
+            const response = await fetch(API_URL + `/reports`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',

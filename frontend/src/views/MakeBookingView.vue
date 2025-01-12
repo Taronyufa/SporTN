@@ -139,6 +139,8 @@
     import { useRoute, useRouter } from 'vue-router';
     import user from '../states/user';
     import { format } from 'date-fns';
+
+    const API_URL = import.meta.env.VITE_API_HOST;
     
     const route = useRoute();
     const router = useRouter();
@@ -156,7 +158,7 @@
     
     async function fetchFieldDetails(fieldId) {
         try {
-            const response = await fetch(`http://localhost:3000/api/fields/${fieldId}`);
+            const response = await fetch(API_URL + `/fields/${fieldId}`);
             if (!response.ok) {
                 throw new Error(`HTTP error! Status: ${response.status}`);
             }
@@ -168,7 +170,7 @@
     
     async function fetchFutureReservations(fieldId) {
         try {
-            const response = await fetch(`http://localhost:3000/api/reservations`);
+            const response = await fetch(API_URL + `/reservations`);
             if (!response.ok) {
                 throw new Error(`HTTP error! Status: ${response.status}`);
             }
@@ -186,7 +188,7 @@
 
     async function fetchReviews(fieldId) {
         try {
-            const response = await fetch(`http://localhost:3000/api/reviews?field_id=${fieldId}`);
+            const response = await fetch(API_URL + `/reviews?field_id=${fieldId}`);
             if (!response.ok) {
                 throw new Error('Failed to fetch reviews.');
             }
@@ -205,7 +207,7 @@
         }
     
         try {
-            const response = await fetch(`http://localhost:3000/api/reservations`, {
+            const response = await fetch(API_URL + `/reservations`, {
                 method: 'POST',
                 headers: {
                 'Content-Type': 'application/json',

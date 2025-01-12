@@ -34,11 +34,13 @@
     import { format } from 'date-fns';
     import user  from '../states/user';
     
+    const API_URL = import.meta.env.VITE_API_HOST;
+
     const reports = ref([]); // Store all reports
     
     async function fetchReports() {
         try {
-            const response = await fetch('http://localhost:3000/api/reports', {
+            const response = await fetch(API_URL + '/reports', {
                 headers: { Authorization: `Bearer ${user.token}` },
             });
             if (!response.ok) {

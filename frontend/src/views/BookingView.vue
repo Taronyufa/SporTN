@@ -81,6 +81,8 @@
     import { computed } from "vue";
     import user from '../states/user';
     import { format } from 'date-fns';
+
+    const API_URL = import.meta.env.VITE_API_HOST;
     
     const route = useRoute();
     const router = useRouter();
@@ -96,7 +98,7 @@
     
     async function fetchReservationDetails(reservationId) {
         try {
-            const response = await fetch(`http://localhost:3000/api/reservations/${reservationId}`, {
+            const response = await fetch(API_URL + `/reservations/${reservationId}`, {
                 headers: {
                 Authorization: `Bearer ${user.token}`,
                 },
@@ -121,7 +123,7 @@
     
     async function fetchFieldDetails(fieldId) {
         try {
-            const response = await fetch(`http://localhost:3000/api/fields/${fieldId}`);
+            const response = await fetch(API_URL + `/fields/${fieldId}`);
             if (!response.ok) {
                 throw new Error('Failed to fetch field details.');
             }
@@ -134,7 +136,7 @@
     
     async function deleteReservation() {
         try {
-            const response = await fetch(`http://localhost:3000/api/reservations/${reservation._id}`, {
+            const response = await fetch(API_URL + `/reservations/${reservation._id}`, {
                 method: 'DELETE',
                 headers: {
                     Authorization: `Bearer ${user.token}`,

@@ -154,6 +154,9 @@
     import { clearUser } from '../states/user';
 
     import { useRouter } from 'vue-router';
+
+    const API_URL = import.meta.env.VITE_API_HOST;
+
     const router = useRouter();
 
     const userDetails = ref({});
@@ -170,7 +173,7 @@
     
     async function fetchUserDetails() {
         try {
-            const response = await fetch('http://localhost:3000/api/users/me', {
+            const response = await fetch(API_URL + '/users/me', {
                 headers: { Authorization: `Bearer ${user.token}` },
             });
         
@@ -189,7 +192,7 @@
     
     async function fetchSports() {
         try {
-            const response = await fetch('http://localhost:3000/api/sports');
+            const response = await fetch(API_URL + '/sports');
             if (!response.ok) throw new Error('Failed to fetch sports.');
         
             sports = await response.json();
@@ -202,7 +205,7 @@
         try {
             // get the sport names from the selected sports
             favoriteSports = favoriteSports.map((sport) => sport.nome);
-            const response = await fetch('http://localhost:3000/api/users/me', {
+            const response = await fetch(API_URL + '/users/me', {
                 method: 'PUT',
                 headers: {
                     'Content-Type': 'application/json',
@@ -232,7 +235,7 @@
         }
     
         try {
-            const response = await fetch('http://localhost:3000/api/auth/change-password', {
+            const response = await fetch(API_URL + '/auth/change-password', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',

@@ -23,6 +23,8 @@
     import { useRoute, useRouter } from 'vue-router';
     import { format } from 'date-fns';
     
+    const API_URL = import.meta.env.VITE_API_HOST;
+
     const route = useRoute();
     const router = useRouter();
     
@@ -30,7 +32,7 @@
     
     async function fetchEventDetails(eventId) {
         try {
-            const response = await fetch(`http://localhost:3000/api/events/${eventId}`);
+            const response = await fetch(API_URL + `/events/${eventId}`);
             if (!response.ok) {
                 throw new Error('Failed to fetch event details.');
             }

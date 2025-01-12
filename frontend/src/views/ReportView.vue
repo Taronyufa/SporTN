@@ -53,6 +53,8 @@
     import { useRoute, useRouter } from 'vue-router';
     import user  from '../states/user';
     
+    const API_URL = import.meta.env.VITE_API_HOST;
+
     const route = useRoute();
     const router = useRouter();
     
@@ -62,7 +64,7 @@
     
     async function fetchReportDetails(reportId) {
         try {
-            const response = await fetch(`http://localhost:3000/api/reports/${reportId}`, {
+            const response = await fetch(API_URL + `/reports/${reportId}`, {
                 headers: { Authorization: `Bearer ${user.token}` },
             });
             if (!response.ok) {
@@ -82,7 +84,7 @@
     
     async function fetchFieldDetails(fieldId) {
         try {
-            const response = await fetch(`http://localhost:3000/api/fields/${fieldId}`);
+            const response = await fetch(API_URL + `/fields/${fieldId}`);
             if (!response.ok) {
                 throw new Error('Failed to fetch field details.');
             }
@@ -94,7 +96,7 @@
     
     async function updateStatus() {
         try {
-            const response = await fetch(`http://localhost:3000/api/reports/${report.value._id}/status`, {
+            const response = await fetch(API_URL + `/reports/${report.value._id}/status`, {
                 method: 'PUT',
                 headers: {
                 'Content-Type': 'application/json',

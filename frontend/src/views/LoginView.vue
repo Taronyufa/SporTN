@@ -54,6 +54,8 @@
     import { useRouter } from 'vue-router';
     import { setUser } from '../states/user';
 
+    const API_URL = import.meta.env.VITE_API_HOST;
+
     const email = ref('');
     const password = ref('');
     const errorMessage = ref('');
@@ -63,7 +65,7 @@
 
     async function login() {
         try {
-            const response = await fetch('http://localhost:3000/api/auth/login', {
+            const response = await fetch(API_URL + '/auth/login', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ email: email.value, password: password.value }),

@@ -41,12 +41,14 @@
     import { ref, onMounted } from 'vue';
     import { useRouter } from 'vue-router';
 
+    const API_URL = import.meta.env.VITE_API_HOST;
+
     const fields = ref([]);
     const router = useRouter();
 
     async function fetchFields() {
         try {
-            const response = await fetch('http://localhost:3000/api/fields');
+            const response = await fetch(API_URL + '/fields');
             if (!response.ok) {
             throw new Error(`HTTP error! Status: ${response.status}`);
             }
